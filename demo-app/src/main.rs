@@ -2,11 +2,10 @@
 #![no_main]
 
 mod panic;
-mod remoteproc;
 
 use core::{arch::{asm, global_asm}, sync::atomic::{self, Ordering}};
 
-use remoteproc::{ResourceTable, FwResourceType, ResourceEntry, ResourceTableHeader, TraceResourceTypeData, ResourceTableTargetAddress};
+use remoteproc_resource_table::{ResourceTable, FwResourceType, ResourceEntry, ResourceTableHeader, TraceResourceTypeData, ResourceTableTargetAddress};
 
 #[no_mangle]
 #[link_section = ".log_shared_mem"]

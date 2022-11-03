@@ -1,3 +1,4 @@
+#![no_std]
 
 #[repr(transparent)]
 pub struct ResourceTableTargetAddress(pub *const u8);

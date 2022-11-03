@@ -1,5 +1,6 @@
 [workspace]
 
 members = [
+    "remoteproc-resource-table",
     "demo-app",
 ]
