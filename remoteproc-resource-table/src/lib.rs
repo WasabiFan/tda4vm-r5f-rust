@@ -4,12 +4,52 @@
 pub struct ResourceTableTargetAddress(pub *const u8);
 unsafe impl Sync for ResourceTableTargetAddress {}
 
-#[repr(C, align(4096))]
-pub struct ResourceTable<const N: usize> {
-    pub header: ResourceTableHeader<N>,
-    // TODO: I tried to be elegant, but this is broken without variadic generics. Need to figure
-    // out a better structure.
-    pub resources: [ResourceEntry<TraceResourceTypeData>; N],
+#[macro_export]
+macro_rules! count_tts {
+    () => { 0 };
+    ($odd:tt $($a:tt $b:tt)*) => { ($crate::count_tts!($($a)*) << 1) | 1 };
+    ($($a:tt $even:tt)*) => { count_tts!($($a)*) << 1 };
+}
+
+#[macro_export]
+macro_rules! resource_table {
+    [ $($name:ident $body:tt),* ] => {
+        const __REMOTEPROC_RESOURCE_TABLE_N: usize = $crate::count_tts!($($name) *);
+
+        #[link_section = ".resource_table"]
+        #[no_mangle]
+        #[used]
+        pub static __REMOTEPROC_RESOURCE_TABLE: ($crate::ResourceTableHeader<__REMOTEPROC_RESOURCE_TABLE_N>, ($($crate::ResourceEntry<$name>),*)) = {
+            const fn header<const N: usize>(sizes: [u32; N]) -> $crate::ResourceTableHeader<N> {
+                let mut offset = [ 0u32; N ];
+                offset[0] = core::mem::size_of::<$crate::ResourceTableHeader<N>>() as u32;
+
+                let mut i = 1;
+                loop {
+                    if i == N { break }
+                    offset[i] = offset[i-1] + sizes[i-1];
+                    i += 1;
+                }
+
+                $crate::ResourceTableHeader {
+                    ver: 1,
+                    num: N as u32,
+                    _reserved: [0; 2],
+                    offset
+                }
+            }
+
+            let sizes = [ $(core::mem::size_of::<$name>() as u32),*];
+            let bodies = ( $(
+                $crate::ResourceEntry {
+                    resource_type: $name::get_resource_type(),
+                    data: $name $body
+                }
+            ),* );
+
+            (header(sizes), bodies)
+        };
+    }
 }
 
 #[repr(C, packed)]
@@ -22,10 +62,10 @@ pub struct ResourceTableHeader<const N: usize> {
 
 #[repr(u32)]
 pub enum FwResourceType {
-    RSC_CARVEOUT = 0,
-    RSC_DEVMEM = 1,
-    RSC_TRACE = 2,
-    RSC_VDEV = 3,
+    Carveout = 0,
+    DevMem = 1,
+    Trace = 2,
+    VDev = 3,
 }
 
 #[repr(C, packed)]
@@ -34,6 +74,13 @@ pub struct TraceResourceTypeData {
     pub length: u32,
     pub _reserved: u32,
     pub name: [ u8; 32 ],
+}
+
+// TODO: implement resource types for other resources
+impl TraceResourceTypeData {
+    pub const fn get_resource_type() -> FwResourceType {
+        FwResourceType::Trace
+    }
 }
 
 #[repr(C, packed)]
@@ -54,10 +101,10 @@ pub struct VdevResourceTypeData<const N: usize> {
     pub config_len: u32,
     pub status: u32,
     pub num_of_vrings: u8,
+    // TODO: clean up "reserved" initialization
     pub reserved: [ u8; 2],
     pub vring: [VdevResourceVringDescriptor; N],
 }
-
 
 #[repr(C, packed)]
 pub struct ResourceEntry<T> {

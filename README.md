@@ -23,6 +23,10 @@ applicable to other boards and SoCs but I don't yet know.
 I can't make any promises on future expansion; if nothing else, I hope it's a helpful reference for
 others' work.
 
+## Known limitations
+
+- The DDR memory range allocated to the core is currently hard-coded in the linkerscript
+
 ## Why would you want bare metal Rust on coprocessor cores?
 
 The TDA4VM chips target embedded deep learning applications. This makes them very attractive for

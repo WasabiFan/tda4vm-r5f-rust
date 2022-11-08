@@ -5,7 +5,7 @@ mod panic;
 
 use core::{arch::{asm, global_asm}, sync::atomic::{self, Ordering}};
 
-use remoteproc_resource_table::{ResourceTable, FwResourceType, ResourceEntry, ResourceTableHeader, TraceResourceTypeData, ResourceTableTargetAddress};
+use remoteproc_resource_table::{TraceResourceTypeData, ResourceTableTargetAddress, resource_table};
 
 #[no_mangle]
 #[link_section = ".log_shared_mem"]
@@ -15,38 +15,22 @@ static mut DEBUG_LOG: [ u8; 100 ] = [ 0; 100 ];
 #[cfg(not(target_pointer_width = "32"))]
 compile_error!("Requires 32-bit pointers");
 
-// TODO: avoid forcing allocation of the resource table segment
-#[no_mangle]
-#[link_section = ".resource_table"]
-static RESOURCE_TABLE: ResourceTable<1> =  ResourceTable {
-    header: ResourceTableHeader {
-        ver: 1,
-        num: 1,
-        _reserved: [ 0; 2 ],
-        offset: [
-            core::mem::size_of::<ResourceTableHeader<1>>() as u32,
-        ],
-    },
-    resources: [
-        ResourceEntry {
-            resource_type: FwResourceType::RSC_TRACE,
-            data: TraceResourceTypeData {
-                device_address: ResourceTableTargetAddress(unsafe {  &DEBUG_LOG as *const u8 }),
-                length: 100,
-                _reserved: 0,
-                name: {
-                    let mut x = [0; 32];
+resource_table![
+    TraceResourceTypeData {
+        device_address: ResourceTableTargetAddress(unsafe {  &DEBUG_LOG as *const u8 }),
+        length: 100,
+        _reserved: 0,
+        name: {
+            let mut x = [0; 32];
 
-                    x[0] = b'a';
-                    x[1] = b'b';
-                    x[2] = b'c';
+            x[0] = b'a';
+            x[1] = b'b';
+            x[2] = b'c';
 
-                    x
-                }
-            }
+            x
         }
-    ]
-};
+    }
+];
 
 // TODO: did TI add any custom interrupt hardware?
 // Vectored ISR handler table. Ref: https://developer.arm.com/documentation/ddi0460/d/Programmers-Model/Exceptions/Exception-vectors?lang=en
@@ -66,7 +50,7 @@ isr_vector:
     ldr pc,=_rt_tramp_abort_data            /* 0x10 */
     nop                                     /* unused */
     ldr pc,=_rt_tramp_irq                   /* 0x18 */
-    ldr pc,=_rq_tramp_fiq                   /* 0x1C */
+    ldr pc,=_rt_tramp_fiq                   /* 0x1C */
 
 .section .text
 _rt_tramp_undefined_instr:
@@ -74,24 +58,11 @@ _rt_tramp_software_irq:
 _rt_tramp_abort_prefetch:
 _rt_tramp_abort_data:
 _rt_tramp_irq:
-_rq_tramp_fiq:
+_rt_tramp_fiq:
     // Temporary (?) hack: switch back to supervisor mode to coopt supervisor stack
     cps #0x13
     b _rt_isr_default
-
-// See below; dummy reference to linker table
-b __unused_resource_table_shim
 "#);
-
-#[no_mangle]
-unsafe extern "C" fn __unused_resource_table_shim() {
-    // Dummy function to introduce a reference to the resource table. Without it, either the
-    // compiler or linker strips it out.
-    // TODO: figure out a cleaner way to ensure resource table is kept
-    // It would be ideal to inject the table post-linker so we had better control of the section.
-    let x = &RESOURCE_TABLE;
-    core::mem::forget(x);
-}
 
 #[no_mangle]
 unsafe extern "C" fn _rt_isr_default() {
@@ -138,6 +109,7 @@ pub unsafe extern "C" fn _entry() -> ! {
     // TODO: enable ECC
     // TODO: configure caches and DDR
     // TODO: verify that remoteproc loader initializes all important memory regions
+    // TODO: identify any clocks/PLLs that need to be configured
 
     main()
 }
@@ -149,7 +121,8 @@ fn main() -> ! {
     unsafe {
         DEBUG_LOG[0] = b'h';
         DEBUG_LOG[1] = b'i';
-        DEBUG_LOG[2] = b'\n';
+        DEBUG_LOG[4] = b'\n';
+        DEBUG_LOG[5] = 0;
     }
 
     let mut x = 0usize;

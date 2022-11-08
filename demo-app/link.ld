@@ -3,24 +3,25 @@ __DDR_START__ = 0xA6000000;
 MEMORY
 {
     TCMA (rwx) : ORIGIN = 0x0, LENGTH = 0x8000
-    DDR_0 (rwx) : ORIGIN = __DDR_START__ + 0x100000, LENGTH = 0x1000
-    DDR_1 (rwx) : ORIGIN = __DDR_START__ + 0x101000, LENGTH = 0xEFF000
+    /* TODO: Make DRAM address more configurable (ideally, not dependent on a specific dts and core) */
+    DDR_0 (rwx) : ORIGIN = __DDR_START__ + 0x101000, LENGTH = 0xEFF000
+    RESOURCE_TABLE (r) : ORIGIN = __DDR_START__ + 0x100000, LENGTH = 0x1000
 }
 
 SECTIONS
 {
     .resource_table :
     {
-        /* TODO: naming */
-        *(.resource_tablexx)
-    } > DDR_0
+        KEEP(*(.resource_table));
+        *(.resource_table)
+    } > RESOURCE_TABLE
 
     .log_shared_mem :
     {
         /* TODO: needed? */
         _log_shared_mem_addr = .;
         *(.log_shared_mem*)
-    } > DDR_1
+    } > DDR_0
 
     .isr_vector :
     {
