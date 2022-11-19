@@ -37,7 +37,7 @@ macro_rules! resource_table {
                 $crate::ResourceTableHeader {
                     ver: 1,
                     num: N as u32,
-                    _reserved: [0; 2],
+                    _reserved: $crate::ZeroBytes::new(),
                     offset
                 }
             }
@@ -55,11 +55,25 @@ macro_rules! resource_table {
     }
 }
 
+pub struct ZeroBytes<const N: usize>([u8; N]);
+
+impl<const N: usize> ZeroBytes<N> {
+    pub const fn new() -> Self {
+        Self([0; N])
+    }
+}
+
+impl<const N: usize> Default for ZeroBytes<N> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[repr(C, packed)]
 pub struct ResourceTableHeader<const N: usize> {
     pub ver: u32,
     pub num: u32,
-    pub _reserved: [u32; 2],
+    pub _reserved: ZeroBytes<8>,
     pub offset: [ u32; N ],
 }
 
@@ -75,7 +89,7 @@ pub enum FwResourceType {
 pub struct TraceResourceTypeData {
     pub device_address: ResourceTableTargetAddress,
     pub length: u32,
-    pub _reserved: u32,
+    pub _reserved: ZeroBytes<4>,
     pub name: [ u8; 32 ],
 }
 
@@ -104,8 +118,7 @@ pub struct VdevResourceTypeData<const N: usize> {
     pub config_len: u32,
     pub status: u32,
     pub num_of_vrings: u8,
-    // TODO: clean up "reserved" initialization
-    pub reserved: [ u8; 2],
+    pub _reserved: ZeroBytes<2>,
     pub vring: [VdevResourceVringDescriptor; N],
 }
 

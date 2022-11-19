@@ -5,7 +5,7 @@ mod panic;
 
 use core::{arch::{asm, global_asm}, sync::atomic::{self, Ordering}};
 
-use remoteproc_resource_table::{TraceResourceTypeData, ResourceTableTargetAddress, resource_table};
+use remoteproc_resource_table::{TraceResourceTypeData, ResourceTableTargetAddress, resource_table, ZeroBytes};
 
 #[no_mangle]
 #[link_section = ".log_shared_mem"]
@@ -19,7 +19,7 @@ resource_table![
     TraceResourceTypeData {
         device_address: ResourceTableTargetAddress(unsafe {  &DEBUG_LOG as *const u8 }),
         length: 100,
-        _reserved: 0,
+        _reserved: ZeroBytes::new(),
         name: {
             let mut x = [0; 32];
 

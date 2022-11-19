@@ -1,5 +1,5 @@
 use remoteproc_resource_table::{
-    resource_table, ResourceTableTargetAddress, TraceResourceTypeData,
+    resource_table, ResourceTableTargetAddress, TraceResourceTypeData, ZeroBytes,
 };
 
 fn resource_table_bytes<'a, T>(resource_table: &'a T) -> &'a [u8] {
@@ -44,7 +44,7 @@ fn test_single_trace_entry() {
     resource_table![TraceResourceTypeData {
         device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
         length: 100,
-        _reserved: 0,
+        _reserved: ZeroBytes::new(),
         name: NAME,
     }];
     let actual = resource_table_bytes(&__REMOTEPROC_RESOURCE_TABLE);
@@ -103,13 +103,13 @@ fn test_two_trace_entries() {
         TraceResourceTypeData {
             device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
             length: 100,
-            _reserved: 0,
+            _reserved: ZeroBytes::new(),
             name: NAME_1,
         },
         TraceResourceTypeData {
             device_address: ResourceTableTargetAddress(0xabcdefab as *const u8),
             length: 200,
-            _reserved: 0,
+            _reserved: ZeroBytes::new(),
             name: NAME_2,
         }
     ];
