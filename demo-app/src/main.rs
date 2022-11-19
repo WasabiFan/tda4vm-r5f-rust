@@ -3,66 +3,70 @@
 
 mod panic;
 
-use core::{arch::{asm, global_asm}, sync::atomic::{self, Ordering}};
+use core::{
+    arch::{asm, global_asm},
+    sync::atomic::{self, Ordering},
+};
 
-use remoteproc_resource_table::{TraceResourceTypeData, ResourceTableTargetAddress, resource_table, ZeroBytes};
+use remoteproc_resource_table::{
+    resource_table, ResourceTableTargetAddress, TraceResourceTypeData, ZeroBytes,
+};
 
 #[no_mangle]
 #[link_section = ".log_shared_mem"]
-static mut DEBUG_LOG: [ u8; 100 ] = [ 0; 100 ];
-
+static mut DEBUG_LOG: [u8; 100] = [0; 100];
 
 #[cfg(not(target_pointer_width = "32"))]
 compile_error!("Requires 32-bit pointers");
 
-resource_table![
-    TraceResourceTypeData {
-        device_address: ResourceTableTargetAddress(unsafe {  &DEBUG_LOG as *const u8 }),
-        length: 100,
-        _reserved: ZeroBytes::new(),
-        name: {
-            let mut x = [0; 32];
+resource_table![TraceResourceTypeData {
+    device_address: ResourceTableTargetAddress(unsafe { &DEBUG_LOG as *const u8 }),
+    length: 100,
+    _reserved: ZeroBytes::new(),
+    name: {
+        let mut x = [0; 32];
 
-            x[0] = b'a';
-            x[1] = b'b';
-            x[2] = b'c';
+        x[0] = b'a';
+        x[1] = b'b';
+        x[2] = b'c';
 
-            x
-        }
+        x
     }
-];
+}];
 
 // TODO: did TI add any custom interrupt hardware?
 // Vectored ISR handler table. Ref: https://developer.arm.com/documentation/ddi0460/d/Programmers-Model/Exceptions/Exception-vectors?lang=en
 // Note: the ELF entry point needs to also refer to this table, so we declare _start here since the linker seems to like that.
-global_asm!(r#"
-.section .isr_vector, "ax"
-.type start, %function
-.type isr_vector, %function
-.global _start
-.global isr_vector
-start:
-isr_vector:
-    ldr pc,=_entry                          /* 0x00 */
-    ldr pc,=_rt_tramp_undefined_instr       /* 0x04 */
-    ldr pc,=_rt_tramp_software_irq          /* 0x08 */
-    ldr pc,=_rt_tramp_abort_prefetch        /* 0x0C */
-    ldr pc,=_rt_tramp_abort_data            /* 0x10 */
-    nop                                     /* unused */
-    ldr pc,=_rt_tramp_irq                   /* 0x18 */
-    ldr pc,=_rt_tramp_fiq                   /* 0x1C */
+global_asm!(
+    r#"
+    .section .isr_vector, "ax"
+    .type start, %function
+    .type isr_vector, %function
+    .global _start
+    .global isr_vector
+    start:
+    isr_vector:
+        ldr pc,=_entry                          /* 0x00 */
+        ldr pc,=_rt_tramp_undefined_instr       /* 0x04 */
+        ldr pc,=_rt_tramp_software_irq          /* 0x08 */
+        ldr pc,=_rt_tramp_abort_prefetch        /* 0x0C */
+        ldr pc,=_rt_tramp_abort_data            /* 0x10 */
+        nop                                     /* unused */
+        ldr pc,=_rt_tramp_irq                   /* 0x18 */
+        ldr pc,=_rt_tramp_fiq                   /* 0x1C */
 
-.section .text
-_rt_tramp_undefined_instr:
-_rt_tramp_software_irq:
-_rt_tramp_abort_prefetch:
-_rt_tramp_abort_data:
-_rt_tramp_irq:
-_rt_tramp_fiq:
-    // Temporary (?) hack: switch back to supervisor mode to coopt supervisor stack
-    cps #0x13
-    b _rt_isr_default
-"#);
+    .section .text
+    _rt_tramp_undefined_instr:
+    _rt_tramp_software_irq:
+    _rt_tramp_abort_prefetch:
+    _rt_tramp_abort_data:
+    _rt_tramp_irq:
+    _rt_tramp_fiq:
+        // Temporary (?) hack: switch back to supervisor mode to coopt supervisor stack
+        cps #0x13
+        b _rt_isr_default
+    "#
+);
 
 #[no_mangle]
 unsafe extern "C" fn _rt_isr_default() {
@@ -73,9 +77,9 @@ unsafe extern "C" fn _rt_isr_default() {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn _entry() -> ! {
+unsafe extern "C" fn _entry() -> ! {
     // Initially in Supervisor mode
-    // Zero GPRs 
+    // Zero GPRs
     asm!(
         "mov r0, #0",
         "mov r1, #0",
@@ -92,14 +96,14 @@ pub unsafe extern "C" fn _entry() -> ! {
         "mov r12, #0",
     );
 
-    // Initialize stack and zero lr
     asm!(
+        // Initialize stack and zero lr
         "ldr sp, =__StackTop",
         "mov lr, #0"
     );
 
-    // Initialize supervisor PSR
     asm!(
+        // Initialize supervisor PSR
         "mrs r1, cpsr",
         "msr spsr_cxsf, r1"
     );

@@ -2,7 +2,6 @@
 HARDWARE_TARGET = "armv7r-none-eabihf"
 
 [config]
-skip_core_tasks = true
 default_to_workspace = false
 
 [tasks.build]
@@ -32,3 +31,17 @@ args = [
     "check",
     "--target", "${HARDWARE_TARGET}",
 ]
+
+[tasks.format]
+command = "cargo"
+args = [
+    "fmt",
+]
+
+[tasks.clippy]
+command = "cargo"
+args = [
+    "clippy",
+    "--target", "${HARDWARE_TARGET}",
+]
+dependencies = ["install-clippy"]

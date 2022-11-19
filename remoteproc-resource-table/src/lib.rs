@@ -74,7 +74,7 @@ pub struct ResourceTableHeader<const N: usize> {
     pub ver: u32,
     pub num: u32,
     pub _reserved: ZeroBytes<8>,
-    pub offset: [ u32; N ],
+    pub offset: [u32; N],
 }
 
 #[repr(u32)]
@@ -90,7 +90,7 @@ pub struct TraceResourceTypeData {
     pub device_address: ResourceTableTargetAddress,
     pub length: u32,
     pub _reserved: ZeroBytes<4>,
-    pub name: [ u8; 32 ],
+    pub name: [u8; 32],
 }
 
 // TODO: implement resource types for other resources
