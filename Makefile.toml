@@ -1,0 +1,34 @@
+[env]
+HARDWARE_TARGET = "armv7r-none-eabihf"
+
+[config]
+skip_core_tasks = true
+default_to_workspace = false
+
+[tasks.build]
+command = "cargo"
+args = [
+    "build",
+    "--target", "${HARDWARE_TARGET}",
+]
+
+[tasks.build-release]
+command = "cargo"
+args = [
+    "build",
+    "--target", "${HARDWARE_TARGET}",
+    "--release",
+]
+
+[tasks.test]
+command = "cargo"
+args = [
+    "test",
+]
+
+[tasks.check]
+command = "cargo"
+args = [
+    "check",
+    "--target", "${HARDWARE_TARGET}",
+]

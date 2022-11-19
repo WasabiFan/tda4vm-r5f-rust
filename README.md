@@ -47,6 +47,7 @@ avenue to explore.
 
 ```
 rustup target add armv7r-none-eabihf
+cargo install cargo-make
 ```
 
 ## Usage
@@ -54,7 +55,7 @@ rustup target add armv7r-none-eabihf
 Build the demo app:
 
 ```
-cargo build --target armv7r-none-eabihf
+cargo make build
 ```
 
 Run the demo app (on-device):

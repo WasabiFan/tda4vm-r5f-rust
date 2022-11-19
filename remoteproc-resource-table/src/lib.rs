@@ -8,7 +8,7 @@ unsafe impl Sync for ResourceTableTargetAddress {}
 macro_rules! count_tts {
     () => { 0 };
     ($odd:tt $($a:tt $b:tt)*) => { ($crate::count_tts!($($a)*) << 1) | 1 };
-    ($($a:tt $even:tt)*) => { count_tts!($($a)*) << 1 };
+    ($($a:tt $even:tt)*) => { $crate::count_tts!($($a)*) << 1 };
 }
 
 #[macro_export]
@@ -16,19 +16,22 @@ macro_rules! resource_table {
     [ $($name:ident $body:tt),* ] => {
         const __REMOTEPROC_RESOURCE_TABLE_N: usize = $crate::count_tts!($($name) *);
 
-        #[link_section = ".resource_table"]
-        #[no_mangle]
+        #[cfg_attr(not(test), link_section = ".resource_table")]
+        #[cfg_attr(not(test), no_mangle)]
         #[used]
         pub static __REMOTEPROC_RESOURCE_TABLE: ($crate::ResourceTableHeader<__REMOTEPROC_RESOURCE_TABLE_N>, ($($crate::ResourceEntry<$name>),*)) = {
             const fn header<const N: usize>(sizes: [u32; N]) -> $crate::ResourceTableHeader<N> {
                 let mut offset = [ 0u32; N ];
-                offset[0] = core::mem::size_of::<$crate::ResourceTableHeader<N>>() as u32;
 
-                let mut i = 1;
-                loop {
-                    if i == N { break }
-                    offset[i] = offset[i-1] + sizes[i-1];
-                    i += 1;
+                if N > 0 {
+                    offset[0] = core::mem::size_of::<$crate::ResourceTableHeader<N>>() as u32;
+
+                    let mut i = 1;
+                    loop {
+                        if i >= N { break }
+                        offset[i] = offset[i-1] + sizes[i-1];
+                        i += 1;
+                    }
                 }
 
                 $crate::ResourceTableHeader {
@@ -39,7 +42,7 @@ macro_rules! resource_table {
                 }
             }
 
-            let sizes = [ $(core::mem::size_of::<$name>() as u32),*];
+            let sizes = [ $(core::mem::size_of::<$crate::ResourceEntry<$name>>() as u32),*];
             let bodies = ( $(
                 $crate::ResourceEntry {
                     resource_type: $name::get_resource_type(),
