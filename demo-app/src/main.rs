@@ -2,6 +2,7 @@
 #![no_main]
 
 mod panic;
+mod trace_buffers;
 
 use core::{
     arch::{asm, global_asm},
