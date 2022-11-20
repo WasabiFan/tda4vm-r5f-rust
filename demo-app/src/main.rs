@@ -6,34 +6,55 @@ mod trace_buffers;
 
 use core::{
     arch::{asm, global_asm},
+    fmt::Write,
     sync::atomic::{self, Ordering},
 };
+
+use panic::PANIC_LOG;
+use trace_buffers::CircularTraceBuffer;
 
 use remoteproc_resource_table::{
     resource_table, ResourceTableTargetAddress, TraceResourceTypeData, ZeroBytes,
 };
 
-#[no_mangle]
 #[link_section = ".log_shared_mem"]
-static mut DEBUG_LOG: [u8; 100] = [0; 100];
+static mut DEBUG_LOG: CircularTraceBuffer<256> = CircularTraceBuffer::new();
 
 #[cfg(not(target_pointer_width = "32"))]
 compile_error!("Requires 32-bit pointers");
 
-resource_table![TraceResourceTypeData {
-    device_address: ResourceTableTargetAddress(unsafe { &DEBUG_LOG as *const u8 }),
-    length: 100,
-    _reserved: ZeroBytes::new(),
-    name: {
-        let mut x = [0; 32];
+resource_table![
+    TraceResourceTypeData {
+        device_address: ResourceTableTargetAddress(unsafe { &DEBUG_LOG.buffer as *const u8 }),
+        length: CircularTraceBuffer::length(unsafe { &DEBUG_LOG }) as u32,
+        _reserved: ZeroBytes::new(),
+        name: {
+            let mut x = [0; 32];
 
-        x[0] = b'a';
-        x[1] = b'b';
-        x[2] = b'c';
+            x[0] = b'a';
+            x[1] = b'b';
+            x[2] = b'c';
 
-        x
+            x
+        }
+    },
+    TraceResourceTypeData {
+        device_address: ResourceTableTargetAddress(unsafe { &PANIC_LOG.buffer as *const u8 }),
+        length: CircularTraceBuffer::length(unsafe { &PANIC_LOG }) as u32,
+        _reserved: ZeroBytes::new(),
+        name: {
+            let mut x = [0; 32];
+
+            x[0] = b'p';
+            x[1] = b'a';
+            x[2] = b'n';
+            x[3] = b'i';
+            x[4] = b'c';
+
+            x
+        }
     }
-}];
+];
 
 // TODO: did TI add any custom interrupt hardware?
 // Vectored ISR handler table. Ref: https://developer.arm.com/documentation/ddi0460/d/Programmers-Model/Exceptions/Exception-vectors?lang=en
@@ -120,19 +141,24 @@ unsafe extern "C" fn _entry() -> ! {
 }
 
 fn main() -> ! {
-    // TODO: consider how trace buffer should be used -- it's limited size, how does overflow work?
-    // println!("Hello, world!");
-
     unsafe {
-        DEBUG_LOG[0] = b'h';
-        DEBUG_LOG[1] = b'i';
-        DEBUG_LOG[4] = b'\n';
-        DEBUG_LOG[5] = 0;
+        // TODO: implement critical sections
+        writeln!(DEBUG_LOG, "Hello world!").unwrap();
     }
 
     let mut x = 0usize;
     loop {
         // Dummy busy loop to prevent termination and provide something to observe in the debugger
         x = x.wrapping_add(1);
+
+        if x % 50_000_000 == 0 {
+            unsafe {
+                writeln!(DEBUG_LOG, "Iter {}", x).unwrap();
+            };
+        }
+
+        if x > 200_000_000 {
+            panic!("panik");
+        }
     }
 }

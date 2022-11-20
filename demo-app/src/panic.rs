@@ -1,17 +1,21 @@
+use core::fmt::Write;
 use core::panic::PanicInfo;
 use core::sync::atomic::{self, Ordering};
 
-#[no_mangle]
+use crate::trace_buffers::CircularTraceBuffer;
+
 #[link_section = ".log_shared_mem"]
-static mut PANIC_LOG: [u8; 256] = [0; 256];
+pub static mut PANIC_LOG: CircularTraceBuffer<256> = CircularTraceBuffer::new();
 
 #[inline(never)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    writeln!("{}", info, PANIC_LOG);
+    // Note: we could be in any privilege level
+    unsafe {
+        writeln!(PANIC_LOG, "{}", info).unwrap();
+    }
 
     loop {
-        // TODO: implement a better panic handler
         atomic::compiler_fence(Ordering::SeqCst);
     }
 }
