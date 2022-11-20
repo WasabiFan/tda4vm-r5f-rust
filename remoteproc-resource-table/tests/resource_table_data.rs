@@ -41,12 +41,14 @@ fn test_single_trace_entry() {
         val[31] = 126;
         val
     };
-    resource_table![TraceResourceTypeData {
-        device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
-        length: 100,
-        _reserved: ZeroBytes::new(),
-        name: NAME,
-    }];
+    resource_table! {
+        static test_log: TraceResourceTypeData = TraceResourceTypeData {
+            device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
+            length: 100,
+            _reserved: ZeroBytes::new(),
+            name: NAME,
+        };
+    };
     let actual = resource_table_bytes(&__REMOTEPROC_RESOURCE_TABLE);
 
     // Then
@@ -99,20 +101,20 @@ fn test_two_trace_entries() {
         val[31] = 237;
         val
     };
-    resource_table![
-        TraceResourceTypeData {
+    resource_table! {
+        static test_log_1: TraceResourceTypeData = TraceResourceTypeData {
             device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
             length: 100,
             _reserved: ZeroBytes::new(),
             name: NAME_1,
-        },
-        TraceResourceTypeData {
+        };
+        static test_log_2: TraceResourceTypeData = TraceResourceTypeData {
             device_address: ResourceTableTargetAddress(0xabcdefab as *const u8),
             length: 200,
             _reserved: ZeroBytes::new(),
             name: NAME_2,
-        }
-    ];
+        };
+    };
     let actual = resource_table_bytes(&__REMOTEPROC_RESOURCE_TABLE);
 
     // Then

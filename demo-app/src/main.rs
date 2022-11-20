@@ -24,18 +24,18 @@ static mut DEBUG_LOG: CircularTraceBuffer<256> = CircularTraceBuffer::new();
 compile_error!("Requires 32-bit pointers");
 
 resource_table![
-    TraceResourceTypeData {
+    static debug_log: TraceResourceTypeData = TraceResourceTypeData {
         device_address: ResourceTableTargetAddress(unsafe { &DEBUG_LOG.buffer as *const u8 }),
         length: CircularTraceBuffer::length(unsafe { &DEBUG_LOG }) as u32,
         _reserved: ZeroBytes::new(),
         name: fixed_length_str("debug"),
-    },
-    TraceResourceTypeData {
+    };
+    static panic_log: TraceResourceTypeData = TraceResourceTypeData {
         device_address: ResourceTableTargetAddress(unsafe { &PANIC_LOG.buffer as *const u8 }),
         length: CircularTraceBuffer::length(unsafe { &PANIC_LOG }) as u32,
         _reserved: ZeroBytes::new(),
         name: fixed_length_str("panic"),
-    }
+    };
 ];
 
 // TODO: did TI add any custom interrupt hardware?

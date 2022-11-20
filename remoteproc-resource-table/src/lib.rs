@@ -11,15 +11,17 @@ macro_rules! count_tts {
     ($($a:tt $even:tt)*) => { $crate::count_tts!($($a)*) << 1 };
 }
 
+// TODO: use provided entry names to expose references to each entry
+
 #[macro_export]
 macro_rules! resource_table {
-    [ $($name:ident $body:tt),* ] => {
-        const __REMOTEPROC_RESOURCE_TABLE_N: usize = $crate::count_tts!($($name) *);
+    [ $(static $entry_name:ident : $entry_type:ty = $entry_value:expr);*$(;)? ] => {
+        const __REMOTEPROC_RESOURCE_TABLE_N: usize = $crate::count_tts!($($entry_name) *);
 
         #[cfg_attr(not(test), link_section = ".resource_table")]
         #[cfg_attr(not(test), no_mangle)]
         #[used]
-        pub static __REMOTEPROC_RESOURCE_TABLE: ($crate::ResourceTableHeader<__REMOTEPROC_RESOURCE_TABLE_N>, ($($crate::ResourceEntry<$name>),*)) = {
+        pub static __REMOTEPROC_RESOURCE_TABLE: ($crate::ResourceTableHeader<__REMOTEPROC_RESOURCE_TABLE_N>, ($($crate::ResourceEntry<$entry_type>),*)) = {
             const fn header<const N: usize>(sizes: [u32; N]) -> $crate::ResourceTableHeader<N> {
                 let mut offset = [ 0u32; N ];
 
@@ -42,11 +44,11 @@ macro_rules! resource_table {
                 }
             }
 
-            let sizes = [ $(core::mem::size_of::<$crate::ResourceEntry<$name>>() as u32),*];
+            let sizes = [ $(core::mem::size_of::<$crate::ResourceEntry<$entry_type>>() as u32),*];
             let bodies = ( $(
                 $crate::ResourceEntry {
-                    resource_type: $name::get_resource_type(),
-                    data: $name $body
+                    resource_type: <$entry_type>::get_resource_type(),
+                    data: $entry_value
                 }
             ),* );
 
