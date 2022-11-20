@@ -116,6 +116,15 @@ impl TraceResourceTypeData {
     pub const fn get_resource_type() -> FwResourceType {
         FwResourceType::Trace
     }
+
+    pub const fn from_buffer(name: &str, buffer: &[u8]) -> Self {
+        Self {
+            device_address: ResourceTableTargetAddress(buffer.as_ptr()),
+            length: buffer.len() as u32,
+            _reserved: ZeroBytes::new(),
+            name: fixed_length_str(name),
+        }
+    }
 }
 
 #[repr(C, packed)]

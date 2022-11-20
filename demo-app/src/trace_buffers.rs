@@ -12,11 +12,6 @@ impl<const LENGTH: usize> CircularTraceBuffer<LENGTH> {
             next_byte_idx: 0,
         }
     }
-
-    /// Highly suspect hack to allow retrieval of length
-    pub const fn length(_r: &Self) -> usize {
-        LENGTH
-    }
 }
 
 impl<const LENGTH: usize> core::fmt::Write for CircularTraceBuffer<LENGTH> {

@@ -13,9 +13,7 @@ use core::{
 use panic::PANIC_LOG;
 use trace_buffers::CircularTraceBuffer;
 
-use remoteproc_resource_table::{
-    fixed_length_str, resource_table, ResourceTableTargetAddress, TraceResourceTypeData, ZeroBytes,
-};
+use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
 #[link_section = ".log_shared_mem"]
 static mut DEBUG_LOG: CircularTraceBuffer<256> = CircularTraceBuffer::new();
@@ -24,18 +22,10 @@ static mut DEBUG_LOG: CircularTraceBuffer<256> = CircularTraceBuffer::new();
 compile_error!("Requires 32-bit pointers");
 
 resource_table![
-    static debug_log: TraceResourceTypeData = TraceResourceTypeData {
-        device_address: ResourceTableTargetAddress(unsafe { &DEBUG_LOG.buffer as *const u8 }),
-        length: CircularTraceBuffer::length(unsafe { &DEBUG_LOG }) as u32,
-        _reserved: ZeroBytes::new(),
-        name: fixed_length_str("debug"),
-    };
-    static panic_log: TraceResourceTypeData = TraceResourceTypeData {
-        device_address: ResourceTableTargetAddress(unsafe { &PANIC_LOG.buffer as *const u8 }),
-        length: CircularTraceBuffer::length(unsafe { &PANIC_LOG }) as u32,
-        _reserved: ZeroBytes::new(),
-        name: fixed_length_str("panic"),
-    };
+    static debug_log: TraceResourceTypeData =
+        TraceResourceTypeData::from_buffer("debug", unsafe { &DEBUG_LOG.buffer });
+    static panic_log: TraceResourceTypeData =
+        TraceResourceTypeData::from_buffer("panic", unsafe { &PANIC_LOG.buffer });
 ];
 
 // TODO: did TI add any custom interrupt hardware?
