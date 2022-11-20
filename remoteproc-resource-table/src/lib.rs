@@ -69,6 +69,22 @@ impl<const N: usize> Default for ZeroBytes<N> {
     }
 }
 
+pub const fn fixed_length_str<const L: usize>(val: &str) -> [u8; L] {
+    assert!(val.len() <= L);
+    let mut result = [0; L];
+
+    let mut i = 0;
+    loop {
+        if i >= val.len() {
+            break;
+        }
+        result[i] = val.as_bytes()[i];
+        i += 1;
+    }
+
+    result
+}
+
 #[repr(C, packed)]
 pub struct ResourceTableHeader<const N: usize> {
     pub ver: u32,

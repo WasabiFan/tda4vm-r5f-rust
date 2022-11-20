@@ -14,7 +14,7 @@ use panic::PANIC_LOG;
 use trace_buffers::CircularTraceBuffer;
 
 use remoteproc_resource_table::{
-    resource_table, ResourceTableTargetAddress, TraceResourceTypeData, ZeroBytes,
+    fixed_length_str, resource_table, ResourceTableTargetAddress, TraceResourceTypeData, ZeroBytes,
 };
 
 #[link_section = ".log_shared_mem"]
@@ -28,31 +28,13 @@ resource_table![
         device_address: ResourceTableTargetAddress(unsafe { &DEBUG_LOG.buffer as *const u8 }),
         length: CircularTraceBuffer::length(unsafe { &DEBUG_LOG }) as u32,
         _reserved: ZeroBytes::new(),
-        name: {
-            let mut x = [0; 32];
-
-            x[0] = b'a';
-            x[1] = b'b';
-            x[2] = b'c';
-
-            x
-        }
+        name: fixed_length_str("debug"),
     },
     TraceResourceTypeData {
         device_address: ResourceTableTargetAddress(unsafe { &PANIC_LOG.buffer as *const u8 }),
         length: CircularTraceBuffer::length(unsafe { &PANIC_LOG }) as u32,
         _reserved: ZeroBytes::new(),
-        name: {
-            let mut x = [0; 32];
-
-            x[0] = b'p';
-            x[1] = b'a';
-            x[2] = b'n';
-            x[3] = b'i';
-            x[4] = b'c';
-
-            x
-        }
+        name: fixed_length_str("panic"),
     }
 ];
 
