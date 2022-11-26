@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 remoteproc-resource-table = { path = "../remoteproc-resource-table" }
+cortex-r5-pac = { path = "../cortex-r5-pac" }
 
 [[bin]]
 name = "demo-app"

@@ -3,12 +3,26 @@
 version = 3
 
 [[package]]
+name = "cortex-r5-pac"
+version = "0.1.0"
+dependencies = [
+ "tock-registers",
+]
+
+[[package]]
 name = "demo-app"
 version = "0.1.0"
 dependencies = [
+ "cortex-r5-pac",
  "remoteproc-resource-table",
 ]
 
 [[package]]
 name = "remoteproc-resource-table"
 version = "0.1.0"
+
+[[package]]
+name = "tock-registers"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "696941a0aee7e276a165a978b37918fd5d22c55c3d6bda197813070ca9c0f21c"

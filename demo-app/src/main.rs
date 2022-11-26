@@ -13,6 +13,10 @@ use core::{
 use panic::PANIC_LOG;
 use trace_buffers::CircularTraceBuffer;
 
+use cortex_r5_pac::{
+    self,
+    registers::{ReadWriteable, Readable},
+};
 use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
 #[link_section = ".log_shared_mem"]
@@ -116,6 +120,23 @@ fn main() -> ! {
     unsafe {
         // TODO: implement critical sections
         writeln!(DEBUG_LOG, "Hello world!").unwrap();
+    }
+
+    let val = cortex_r5_pac::registers::system_control::SCTLR
+        .extract()
+        .get();
+    unsafe {
+        writeln!(DEBUG_LOG, "before modification: {:x}", val).unwrap();
+    }
+
+    cortex_r5_pac::registers::system_control::SCTLR
+        .modify(cortex_r5_pac::registers::system_control::SCTLR::EE.val(1));
+
+    let val = cortex_r5_pac::registers::system_control::SCTLR
+        .extract()
+        .get();
+    unsafe {
+        writeln!(DEBUG_LOG, "after modification: {:x}", val).unwrap();
     }
 
     let mut x = 0usize;
