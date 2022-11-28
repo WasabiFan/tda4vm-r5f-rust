@@ -92,7 +92,7 @@ register_bitfields![
 
 pub struct Reg;
 
-impl_readable_for_coprocessor_register!(SCTLR::Register, p15, 0, c1, c0, 0);
-impl_writeable_for_coprocessor_register!(SCTLR::Register, p15, 0, c1, c0, 0);
+impl_readable_for_coprocessor_register!(Reg: SCTLR::Register, p15, 0, c1, c0, 0);
+impl_writeable_for_coprocessor_register!(Reg: SCTLR::Register, p15, 0, c1, c0, 0);
 
 pub const SCTLR: Reg = Reg;

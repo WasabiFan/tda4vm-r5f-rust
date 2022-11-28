@@ -1,8 +1,8 @@
 macro_rules! impl_readable_for_coprocessor_register {
-    ($regtype:ty, $cpnum:tt, $opc1:tt, $crn:tt, $crm:tt, $opc2:tt) => {
-        impl Readable for Reg {
+    ($regtype:ty: $bitfield_type:ty, $cpnum:tt, $opc1:tt, $crn:tt, $crm:tt, $opc2:tt) => {
+        impl tock_registers::interfaces::Readable for $regtype {
             type T = u32;
-            type R = $regtype;
+            type R = $bitfield_type;
 
             #[cfg(target_arch = "arm")]
             #[inline]
@@ -34,10 +34,10 @@ macro_rules! impl_readable_for_coprocessor_register {
 }
 
 macro_rules! impl_writeable_for_coprocessor_register {
-    ($regtype:ty, $cpnum:tt, $opc1:tt, $crn:tt, $crm:tt, $opc2:tt) => {
-        impl Writeable for Reg {
+    ($regtype:ty: $bitfield_type:ty, $cpnum:tt, $opc1:tt, $crn:tt, $crm:tt, $opc2:tt) => {
+        impl tock_registers::interfaces::Writeable for $regtype {
             type T = u32;
-            type R = $regtype;
+            type R = $bitfield_type;
 
             #[cfg(target_arch = "arm")]
             #[inline]
