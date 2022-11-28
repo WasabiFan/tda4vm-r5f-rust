@@ -92,50 +92,7 @@ register_bitfields![
 
 pub struct Reg;
 
-impl Readable for Reg {
-    type T = u32;
-    type R = SCTLR::Register;
-
-    #[cfg(target_arch = "arm")]
-    #[inline]
-    fn get(&self) -> Self::T {
-        let value;
-        unsafe {
-            core::arch::asm!(
-                "mrc p15, #0, {reg}, c1, c0",
-                reg = out(reg) value,
-                options(nomem, nostack),
-            );
-        };
-        value
-    }
-
-    #[cfg(not(target_arch = "arm"))]
-    fn get(&self) -> Self::T {
-        unimplemented!();
-    }
-}
-
-impl Writeable for Reg {
-    type T = u32;
-    type R = SCTLR::Register;
-
-    #[cfg(target_arch = "arm")]
-    #[inline]
-    fn set(&self, value: Self::T) {
-        unsafe {
-            core::arch::asm!(
-                "mcr p15, #0, {reg}, c1, c0",
-                reg = in(reg) value,
-                options(nomem, nostack),
-            );
-        };
-    }
-
-    #[cfg(not(target_arch = "arm"))]
-    fn set(&self, _value: Self::T) {
-        unimplemented!();
-    }
-}
+impl_readable_for_coprocessor_register!(SCTLR::Register, p15, 0, c1, c0, 0);
+impl_writeable_for_coprocessor_register!(SCTLR::Register, p15, 0, c1, c0, 0);
 
 pub const SCTLR: Reg = Reg;
