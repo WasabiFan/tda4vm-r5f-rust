@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod mpu;
 mod panic;
 mod trace_buffers;
 
@@ -10,17 +11,14 @@ use core::{
     sync::atomic::{self, Ordering},
 };
 
+use mpu::{MpuRegion, MpuRegionSize};
 use panic::PANIC_LOG;
 use trace_buffers::CircularTraceBuffer;
 
-use cortex_r5_pac::{
-    self,
-    registers::{ReadWriteable, Readable},
-};
 use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
 #[link_section = ".log_shared_mem"]
-static mut DEBUG_LOG: CircularTraceBuffer<256> = CircularTraceBuffer::new();
+static mut DEBUG_LOG: CircularTraceBuffer<4096> = CircularTraceBuffer::new();
 
 #[cfg(not(target_pointer_width = "32"))]
 compile_error!("Requires 32-bit pointers");
@@ -122,21 +120,44 @@ fn main() -> ! {
         writeln!(DEBUG_LOG, "Hello world!").unwrap();
     }
 
-    let val = cortex_r5_pac::registers::system_control::SCTLR
-        .extract()
-        .get();
-    unsafe {
-        writeln!(DEBUG_LOG, "before modification: {:x}", val).unwrap();
-    }
+    mpu::Mpu::init(
+        &[
+            MpuRegion {
+                base_address: 0x0,
+                size: MpuRegionSize::from_log2_bytes(15).unwrap(),
+                attributes: mpu::MpuRegionAttributes {
+                    execute_never: false,
+                    access_permissions: mpu::MpuRegionAccessPermissions::AllReadWrite,
+                    coherence_configuration: mpu::MpuRegionCoherenceConfiguration::Normal(
+                        mpu::MpuRegionCachePolicy::AllDomains(
+                            mpu::MpuRegionShareabilityDomainCachePolicy::NonCacheable,
+                        ),
+                        mpu::MpuRegionShareability::NonShareable,
+                    ),
+                    subregion_disable_mask: 0,
+                },
+            },
+            MpuRegion {
+                base_address: 0x8000_0000,
+                size: MpuRegionSize::from_log2_bytes(31).unwrap(),
+                attributes: mpu::MpuRegionAttributes {
+                    execute_never: false,
+                    access_permissions: mpu::MpuRegionAccessPermissions::AllReadWrite,
+                    coherence_configuration: mpu::MpuRegionCoherenceConfiguration::Normal(
+                        mpu::MpuRegionCachePolicy::AllDomains(
+                            mpu::MpuRegionShareabilityDomainCachePolicy::NonCacheable,
+                        ),
+                        mpu::MpuRegionShareability::NonShareable,
+                    ),
+                    subregion_disable_mask: 0,
+                },
+            },
+        ],
+        false,
+    );
 
-    cortex_r5_pac::registers::system_control::SCTLR
-        .modify(cortex_r5_pac::registers::system_control::SCTLR::EE.val(1));
-
-    let val = cortex_r5_pac::registers::system_control::SCTLR
-        .extract()
-        .get();
     unsafe {
-        writeln!(DEBUG_LOG, "after modification: {:x}", val).unwrap();
+        writeln!(DEBUG_LOG, "We survived the MPU!").unwrap();
     }
 
     let mut x = 0usize;

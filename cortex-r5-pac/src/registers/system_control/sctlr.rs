@@ -46,7 +46,7 @@ register_bitfields![
 
         // [18] undefined, should be one
 
-        /// MPU bakground region enable
+        /// MPU background region enable
         BR OFFSET(17) NUMBITS(1) [],
 
         // [16] undefined, should be one
