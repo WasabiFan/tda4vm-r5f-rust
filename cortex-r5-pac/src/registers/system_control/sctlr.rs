@@ -1,12 +1,9 @@
-use tock_registers::{
-    interfaces::{Readable, Writeable},
-    register_bitfields,
-};
+use tock_registers::register_bitfields;
 
 register_bitfields![
     u32,
 
-    /// CP15, c1, System Control Register
+    /// CP15, System Control Register
     pub SCTLR [
         /// Instruction endianness (read-only)
         IE OFFSET(31) NUMBITS(1) [
