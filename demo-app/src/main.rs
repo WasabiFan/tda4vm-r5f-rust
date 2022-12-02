@@ -160,6 +160,12 @@ fn main() -> ! {
         writeln!(DEBUG_LOG, "We survived the MPU!").unwrap();
     }
 
+    let val = run_me_from_ddr(12);
+
+    unsafe {
+        writeln!(DEBUG_LOG, "DDR code returned: {:x}", val).unwrap();
+    }
+
     let mut x = 0usize;
     loop {
         // Dummy busy loop to prevent termination and provide something to observe in the debugger
@@ -175,4 +181,15 @@ fn main() -> ! {
             panic!("panik");
         }
     }
+}
+
+#[link_section = ".textddr"]
+#[inline(never)]
+fn run_me_from_ddr(x: u32) -> u32 {
+    let reg: u32;
+    unsafe {
+        asm!("mov {reg}, pc", reg = out(reg) reg);
+        writeln!(DEBUG_LOG, "Hello from DDR, pc = {:x}", reg).unwrap();
+    }
+    reg
 }

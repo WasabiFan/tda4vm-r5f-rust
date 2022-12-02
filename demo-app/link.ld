@@ -29,6 +29,11 @@ SECTIONS
         KEEP(*(.isr_vector))
     } > TCMA
 
+    .textddr :
+    {
+        *(.textddr*)
+    } > DDR_0
+
     .text :
     {
         *(.text*)
@@ -61,7 +66,8 @@ SECTIONS
     } > TCMA
 
     __exidx_start = .;
-    .ARM.exidx :
+    /* TODO: exidx metadata doesn't seem to support far code relocations */
+    /DISCARD/ :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > TCMA
