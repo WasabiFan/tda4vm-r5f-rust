@@ -1,31 +1,32 @@
 # TDA4VM R5F embedded Rust
 
-Work-in-progress infrastructure for Rust firmware targeting the Cortex-R5F cores of TI's TDA4VM,
-J721E, and other similar SoCs.
+Work-in-progress infrastructure for Rust firmware targeting the Cortex-R5F cores of TI's J721E family such as the TDA4VM.
 
 ## Capabilities
 
 The following is currently implemented:
 - Booting from TCM, loaded via remoteproc in Linux
+  - Helper macros for generating remoteproc tables
+- Logging/panicking to remoteproc trace buffers
+- Standard exception handlers
+- Configuring and enabling MPU
 
 ## Status
 
-This repo is currently **only a proof-of-concept**, and is not useful in practice. I hope to expand
-it into a family of crates to support functions such as:
+This repo is currently **only a proof-of-concept**, and is not useful in practice. I am writing code
+in a "demo app" crate and then reformulating it into external driver crates when it makes sense. I
+hope to expand it into a family of crates to support functions such as:
 
-- remoteproc resource table generation and firmware-facing abstractions
+- Firmware-facing abstractions for host processor interop (rpmesg, VirtIO)
 - GPIO and peripheral access for important features of the chip
 - Support for one or more of the common async-based task scheduling frameworks, likely Embassy
 
 For the foreseeable future, I will be testing this only on the BeagleBone AI-64. It is probably
-applicable to other boards and SoCs but I don't yet know.
+applicable to other boards and SoCs but I don't yet know. Most of what I have written should work
+for any Cortex-R5.
 
 I can't make any promises on future expansion; if nothing else, I hope it's a helpful reference for
 others' work.
-
-## Known limitations
-
-- The DDR memory range allocated to the core is currently hard-coded in the linkerscript
 
 ## Why would you want bare metal Rust on coprocessor cores?
 
@@ -70,7 +71,10 @@ echo start | sudo tee /dev/remoteproc/j7-main-r5f1_0/state
 
 sudo ls /dev/remoteproc/j7-main-r5f1_0/device/remoteproc/
 # Note which remoteproc node name is printed, and substitute it below
+# trace0: main debug log
 sudo cat /sys/kernel/debug/remoteproc/remoteproc18/trace0
+# trace1: panic log
+sudo cat /sys/kernel/debug/remoteproc/remoteproc18/trace1
 ```
 
 ## Prior art, references and thanks
