@@ -1,5 +1,5 @@
 [package]
-name = "demo-app"
+name = "demo-app-boot"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,5 +11,6 @@ cortex-r5-pac = { path = "../cortex-r5-pac" }
 
 [[bin]]
 name = "demo-app"
+path = "src/main.rs"
 test = false
 bench = false

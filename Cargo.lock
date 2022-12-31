@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "demo-app"
+name = "demo-app-boot"
 version = "0.1.0"
 dependencies = [
  "cortex-r5-pac",
