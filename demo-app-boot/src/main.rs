@@ -15,11 +15,13 @@ use mpu::{MpuRegion, MpuRegionSize};
 use panic::PANIC_LOG;
 use trace_buffers::CircularTraceBuffer;
 
+use cortex_r5_pac::registers::Readable;
 use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
 #[link(name = "demo_app", kind = "static")]
 extern "C" {
     pub fn run_me_from_ddr_too(x: u32) -> u32;
+    pub fn get_reg_from_ddr() -> u32;
 }
 
 #[link_section = ".log_shared_mem"]
@@ -174,6 +176,18 @@ fn main() -> ! {
     unsafe {
         let val = run_me_from_ddr_too(12);
         writeln!(DEBUG_LOG, "Main app DDR code returned: {:x}", val).unwrap();
+    }
+
+    unsafe {
+        // Demo invoking Rust library in main app, with library also present in boot
+        let main_app_val = get_reg_from_ddr();
+        let boot_app_val = cortex_r5_pac::registers::system_control::SCTLR.get();
+        writeln!(
+            DEBUG_LOG,
+            "Main app fetched SCTLR: {:x}, observed value is: {:x}",
+            main_app_val, boot_app_val
+        )
+        .unwrap();
     }
 
     let mut x = 0usize;

@@ -2,6 +2,8 @@
 
 use core::arch::asm;
 
+use cortex_r5_pac::registers::{system_control::SCTLR, Readable};
+
 mod panic;
 
 #[no_mangle]
@@ -14,4 +16,14 @@ pub extern "C" fn run_me_from_ddr_too(x: u32) -> u32 {
         // writeln!(DEBUG_LOG, "Hello from DDR, pc = {:x}", reg).unwrap();
     }
     reg
+}
+
+#[no_mangle]
+#[inline(never)]
+pub extern "C" fn get_reg_from_ddr() -> u32 {
+    let val = SCTLR.get();
+    unsafe {
+        asm!("nop");
+    }
+    val
 }
