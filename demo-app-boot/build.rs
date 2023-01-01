@@ -23,6 +23,11 @@ fn main() {
         .unwrap();
     println!("cargo:rustc-link-search={}", out.display());
 
+    // Enable linking against final main app lib artifact
+    // TODO: is there a better way to point to this file? Maybe move link attribute here and use a full path.
+    let target_dir = out.join("../../../");
+    println!("cargo:rustc-link-search=native={}", target_dir.display());
+
     // By default, Cargo will re-run a build script whenever
     // any file in the project changes. By specifying `link.ld`
     // here, we ensure the build script is only re-run when

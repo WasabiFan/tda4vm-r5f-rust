@@ -10,11 +10,18 @@ MEMORY
 
 SECTIONS
 {
+    /* system-level metadata ===================== */
     .resource_table :
     {
         KEEP(*(.resource_table));
         *(.resource_table)
     } > RESOURCE_TABLE
+
+    .isr_vector :
+    {
+        . = 0x0;
+        KEEP(*(.isr_vector))
+    } > TCMA
 
     .log_shared_mem :
     {
@@ -23,17 +30,68 @@ SECTIONS
         *(.log_shared_mem*)
     } > DDR_0
 
-    .isr_vector :
+    /* DDR RAM: main app ========================= */
+    .ddr.text :
     {
-        . = 0x0;
-        KEEP(*(.isr_vector))
-    } > TCMA
+        /* explicit placement */
+        *(.ddr.text*)
 
-    .textddr :
-    {
-        *(.textddr*)
+        /* dupes of unqualified .text rules, for app lib */
+        */libdemo_app.a:*(.text*)
+
+        KEEP(*/libdemo_app.a:*(.init))
+        KEEP(*/libdemo_app.a:*(.fini))
+
+        /* .ctors */
+        */libdemo_app.a:*crtbegin.o(.ctors)
+        */libdemo_app.a:*crtbegin?.o(.ctors)
+        */libdemo_app.a:*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+        */libdemo_app.a:*(SORT(.ctors.*))
+        */libdemo_app.a:*(.ctors)
+
+        /* .dtors */
+        */libdemo_app.a:*crtbegin.o(.dtors)
+        */libdemo_app.a:*crtbegin?.o(.dtors)
+        */libdemo_app.a:*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+        */libdemo_app.a:*(SORT(.dtors.*))
+        */libdemo_app.a:*(.dtors)
+
+        */libdemo_app.a:*(.rodata*)
+
+        KEEP(*/libdemo_app.a:*(.eh_frame*))
     } > DDR_0
 
+    .data :
+    {
+        . = ALIGN (4);
+        */libdemo_app.a:*(vtable)
+        */libdemo_app.a:*(.data*)
+
+        . = ALIGN(4);
+        /* preinit data */
+        KEEP(*/libdemo_app.a:*(.preinit_array))
+
+        . = ALIGN(4);
+        /* init data */
+        KEEP(*/libdemo_app.a:*(SORT(.init_array.*)))
+        KEEP(*/libdemo_app.a:*(.init_array))
+
+        . = ALIGN(4);
+        /* finit data */
+        KEEP(*/libdemo_app.a:*(SORT(.fini_array.*)))
+        KEEP(*/libdemo_app.a:*(.fini_array))
+
+        KEEP(*/libdemo_app.a:*(.jcr*))
+    } > DDR_0
+
+    .bss :
+    {
+        . = ALIGN(4);
+        */libdemo_app.a:*(.bss*)
+        */libdemo_app.a:*(COMMON)
+    } > DDR_0
+
+    /* TCMA: boot app ============================ */
     .text :
     {
         *(.text*)
@@ -74,57 +132,39 @@ SECTIONS
     __exidx_end = .;
 
 
-    /* Location counter can end up 2byte aligned with narrow Thumb code but
-        __etext is assumed by startup code to be the LMA of a section in RAM
-        which must be 4byte aligned */
-    __etext = ALIGN (4);
-
-    .data : AT (__etext)
+    .data :
     {
-        __data_start__ = .;
+        . = ALIGN (4);
         *(vtable)
         *(.data*)
 
         . = ALIGN(4);
         /* preinit data */
-        PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
-        PROVIDE_HIDDEN (__preinit_array_end = .);
 
         . = ALIGN(4);
         /* init data */
-        PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
-        PROVIDE_HIDDEN (__init_array_end = .);
-
 
         . = ALIGN(4);
         /* finit data */
-        PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
         KEEP(*(.fini_array))
-        PROVIDE_HIDDEN (__fini_array_end = .);
 
         KEEP(*(.jcr*))
-        . = ALIGN(4);
-        /* All data end */
-        __data_end__ = .;
-
     } > TCMA
 
     .bss :
     {
         . = ALIGN(4);
-        __bss_start__ = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4);
-        __bss_end__ = .;
     } > TCMA
 
     .heap (COPY):
     {
+        . = ALIGN(4);
         __end__ = .;
         PROVIDE(end = .);
         *(.heap*)

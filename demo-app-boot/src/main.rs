@@ -17,6 +17,11 @@ use trace_buffers::CircularTraceBuffer;
 
 use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
+#[link(name = "demo_app", kind = "static")]
+extern "C" {
+    pub fn run_me_from_ddr_too(x: u32) -> u32;
+}
+
 #[link_section = ".log_shared_mem"]
 static mut DEBUG_LOG: CircularTraceBuffer<4096> = CircularTraceBuffer::new();
 
@@ -163,7 +168,12 @@ fn main() -> ! {
     let val = run_me_from_ddr(12);
 
     unsafe {
-        writeln!(DEBUG_LOG, "DDR code returned: {:x}", val).unwrap();
+        writeln!(DEBUG_LOG, "Boot app DDR code returned: {:x}", val).unwrap();
+    }
+
+    unsafe {
+        let val = run_me_from_ddr_too(12);
+        writeln!(DEBUG_LOG, "Main app DDR code returned: {:x}", val).unwrap();
     }
 
     let mut x = 0usize;
@@ -183,7 +193,7 @@ fn main() -> ! {
     }
 }
 
-#[link_section = ".textddr"]
+#[link_section = ".ddr.text"]
 #[inline(never)]
 fn run_me_from_ddr(x: u32) -> u32 {
     let reg: u32;

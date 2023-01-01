@@ -3,5 +3,6 @@
 members = [
     "remoteproc-resource-table",
     "cortex-r5-pac",
+    "demo-app",
     "demo-app-boot",
 ]

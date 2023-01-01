@@ -10,10 +10,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "demo-app"
+version = "0.1.0"
+
+[[package]]
 name = "demo-app-boot"
 version = "0.1.0"
 dependencies = [
  "cortex-r5-pac",
+ "demo-app",
  "remoteproc-resource-table",
 ]
 
