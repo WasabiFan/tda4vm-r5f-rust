@@ -12,6 +12,7 @@ use std::env;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
+use std::process::Command;
 
 fn main() {
     // Put `link.ld` in our output directory and ensure it's
@@ -23,14 +24,21 @@ fn main() {
         .unwrap();
     println!("cargo:rustc-link-search={}", out.display());
 
+    Command::new("arm-none-eabi-objcopy").args([
+        "--prefix-symbols=MYMAGICPREFIX",
+        &out.join("../../../libdemo_app.a").display().to_string(),
+        &out.join("libdemo_app.a").display().to_string(),
+    ]).status().expect("objcopy failed");
+
     // Enable linking against final main app lib artifact
     // TODO: is there a better way to point to this file? Maybe move link attribute here and use a full path.
     let target_dir = out.join("../../../");
-    println!("cargo:rustc-link-search=native={}", target_dir.display());
+    println!("cargo:rustc-link-search=native={}", out.display());
 
     // By default, Cargo will re-run a build script whenever
     // any file in the project changes. By specifying `link.ld`
     // here, we ensure the build script is only re-run when
     // `link.ld` is changed.
     println!("cargo:rerun-if-changed=link.ld");
+    println!("cargo:rerun-if-changed={}", out.join("../../../libdemo_app.a").display());
 }

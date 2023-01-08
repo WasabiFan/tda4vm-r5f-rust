@@ -20,7 +20,9 @@ use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
 #[link(name = "demo_app", kind = "static")]
 extern "C" {
+    #[link_name = "MYMAGICPREFIXrun_me_from_ddr_too"]
     pub fn run_me_from_ddr_too(x: u32) -> u32;
+    #[link_name = "MYMAGICPREFIXget_reg_from_ddr"]
     pub fn get_reg_from_ddr() -> u32;
 }
 

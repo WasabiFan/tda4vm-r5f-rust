@@ -37,58 +37,58 @@ SECTIONS
         *(.ddr.text*)
 
         /* dupes of unqualified .text rules, for app lib */
-        */libdemo_app.a:*(.text*)
+        *libdemo_app.a:*(.text*)
 
-        KEEP(*/libdemo_app.a:*(.init))
-        KEEP(*/libdemo_app.a:*(.fini))
+        KEEP(*libdemo_app.a:*(.init))
+        KEEP(*libdemo_app.a:*(.fini))
 
         /* .ctors */
-        */libdemo_app.a:*crtbegin.o(.ctors)
-        */libdemo_app.a:*crtbegin?.o(.ctors)
-        */libdemo_app.a:*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
-        */libdemo_app.a:*(SORT(.ctors.*))
-        */libdemo_app.a:*(.ctors)
+        *libdemo_app.a:*crtbegin.o(.ctors)
+        *libdemo_app.a:*crtbegin?.o(.ctors)
+        *libdemo_app.a:*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+        *libdemo_app.a:*(SORT(.ctors.*))
+        *libdemo_app.a:*(.ctors)
 
         /* .dtors */
-        */libdemo_app.a:*crtbegin.o(.dtors)
-        */libdemo_app.a:*crtbegin?.o(.dtors)
-        */libdemo_app.a:*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
-        */libdemo_app.a:*(SORT(.dtors.*))
-        */libdemo_app.a:*(.dtors)
+        *libdemo_app.a:*crtbegin.o(.dtors)
+        *libdemo_app.a:*crtbegin?.o(.dtors)
+        *libdemo_app.a:*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+        *libdemo_app.a:*(SORT(.dtors.*))
+        *libdemo_app.a:*(.dtors)
 
-        */libdemo_app.a:*(.rodata*)
+        *libdemo_app.a:*(.rodata*)
 
-        KEEP(*/libdemo_app.a:*(.eh_frame*))
+        KEEP(*libdemo_app.a:*(.eh_frame*))
     } > DDR_0
 
     .data :
     {
         . = ALIGN (4);
-        */libdemo_app.a:*(vtable)
-        */libdemo_app.a:*(.data*)
+        *libdemo_app.a:*(vtable)
+        *libdemo_app.a:*(.data*)
 
         . = ALIGN(4);
         /* preinit data */
-        KEEP(*/libdemo_app.a:*(.preinit_array))
+        KEEP(*libdemo_app.a:*(.preinit_array))
 
         . = ALIGN(4);
         /* init data */
-        KEEP(*/libdemo_app.a:*(SORT(.init_array.*)))
-        KEEP(*/libdemo_app.a:*(.init_array))
+        KEEP(*libdemo_app.a:*(SORT(.init_array.*)))
+        KEEP(*libdemo_app.a:*(.init_array))
 
         . = ALIGN(4);
         /* finit data */
-        KEEP(*/libdemo_app.a:*(SORT(.fini_array.*)))
-        KEEP(*/libdemo_app.a:*(.fini_array))
+        KEEP(*libdemo_app.a:*(SORT(.fini_array.*)))
+        KEEP(*libdemo_app.a:*(.fini_array))
 
-        KEEP(*/libdemo_app.a:*(.jcr*))
+        KEEP(*libdemo_app.a:*(.jcr*))
     } > DDR_0
 
     .bss :
     {
         . = ALIGN(4);
-        */libdemo_app.a:*(.bss*)
-        */libdemo_app.a:*(COMMON)
+        *libdemo_app.a:*(.bss*)
+        *libdemo_app.a:*(COMMON)
     } > DDR_0
 
     /* TCMA: boot app ============================ */
