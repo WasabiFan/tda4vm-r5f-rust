@@ -1,5 +1,12 @@
 [env]
 HARDWARE_TARGET = "armv7r-none-eabihf"
+DEVICE_TOOLCHAIN_PREFIX = "arm-none-eabi-"
+OUT_APP_DEBUG = "./target/${HARDWARE_TARGET}/debug/demo_app.elf"
+OUT_APP_RELEASE = "./target/${HARDWARE_TARGET}/release/demo_app.elf"
+PARTIAL_APP_BOOT_DEBUG = "./target/${HARDWARE_TARGET}/debug/demo-app-boot"
+PARTIAL_APP_BOOT_RELEASE = "./target/${HARDWARE_TARGET}/release/demo-app-boot"
+PARTIAL_APP_MAIN_DEBUG = "./target/${HARDWARE_TARGET}/debug/demo-app-main"
+PARTIAL_APP_MAIN_RELEASE = "./target/${HARDWARE_TARGET}/release/demo-app-main"
 
 [tasks.build]
 clear = true
@@ -13,5 +20,26 @@ args = [
     "./target/${HARDWARE_TARGET}/debug/demo-app-boot",
     "./target/${HARDWARE_TARGET}/debug/demo-app-main",
     "-T", "./demo/link.ld",
-    "-o", "./target/${HARDWARE_TARGET}/debug/demo_app.elf",
+    "-o", "${OUT_APP_DEBUG}",
+]
+
+[tasks.size]
+workspace = false
+command = "${DEVICE_TOOLCHAIN_PREFIX}size"
+args = [
+    "-Ax",
+    "${OUT_APP_DEBUG}",
+    "${PARTIAL_APP_BOOT_DEBUG}",
+    "${PARTIAL_APP_MAIN_DEBUG}",
+    "${@}",
+]
+
+[tasks.size-release]
+command = "${DEVICE_TOOLCHAIN_PREFIX}size"
+args = [
+    "-Ax",
+    "${OUT_APP_RELEASE}",
+    "${PARTIAL_APP_BOOT_RELEASE}",
+    "${PARTIAL_APP_MAIN_RELEASE}",
+    "${@}",
 ]
