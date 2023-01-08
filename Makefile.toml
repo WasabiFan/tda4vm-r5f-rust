@@ -1,5 +1,10 @@
 [env]
 HARDWARE_TARGET = "armv7r-none-eabihf"
+DEVICE_TOOLCHAIN_PREFIX = "arm-none-eabi-"
+OUT_APP_DEBUG = "./target/${HARDWARE_TARGET}/debug/demo-app"
+# OUT_LIB_DEBUG = "./target/${HARDWARE_TARGET}/debug/libdemo_app.a"
+OUT_APP_RELEASE = "./target/${HARDWARE_TARGET}/release/demo-app"
+# OUT_LIB_RELEASE = "./target/${HARDWARE_TARGET}/debug/libdemo_app.a"
 
 [config]
 default_to_workspace = false
@@ -45,3 +50,19 @@ args = [
     "--target", "${HARDWARE_TARGET}",
 ]
 dependencies = ["install-clippy"]
+
+[tasks.size]
+command = "${DEVICE_TOOLCHAIN_PREFIX}size"
+args = [
+    "-Ax",
+    "${OUT_APP_DEBUG}",
+    "${@}",
+]
+
+[tasks.size-release]
+command = "${DEVICE_TOOLCHAIN_PREFIX}size"
+args = [
+    "-Ax",
+    "${OUT_APP_RELEASE}",
+    "${@}",
+]
