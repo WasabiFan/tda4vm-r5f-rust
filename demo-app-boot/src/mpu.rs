@@ -199,18 +199,27 @@ impl MpuRegionCoherenceConfiguration {
     }
 }
 
-pub struct Mpu;
+pub fn is_mpu_enabled() -> bool {
+    SCTLR.is_set(SCTLR::M)
+}
 
-impl Mpu {
+pub struct DisabledMpuHandle(());
+
+impl DisabledMpuHandle {
     const MAX_SUPPORTED_REGIONS: u8 = 16;
 
-    pub fn init(regions: &[MpuRegion], background_region_enable: bool) {
+    /// Creates a new handle.
+    ///
+    /// SAFETY: In general, only one of these should ever be created in the lifetime of an app.
+    pub unsafe fn new() -> Self {
+        Self(())
+    }
+
+    pub fn enable(self, regions: &[MpuRegion], background_region_enable: bool) -> EnabledMpuHandle {
+        assert!(!is_mpu_enabled());
+
+        // TODO: proper validation/error handling
         assert!(regions.len() <= Self::MAX_SUPPORTED_REGIONS as usize);
-
-        // TODO: we can probably support only "disable, configure from scratch, enable" APIs rather than handling progressive region changes
-        // TODO: handle MPU being already enabled
-
-        // TODO: dsb/isb somewhere? Check on barrier requirements.
 
         SCTLR.modify(SCTLR::BR.val(0));
 
@@ -228,6 +237,8 @@ impl Mpu {
 
         // TODO: Handle cache disable/flush/enable
         SCTLR.modify(SCTLR::M.val(1));
+
+        EnabledMpuHandle(())
     }
 
     fn configure_region(region_idx: u8, config: Option<&MpuRegion>) {
@@ -284,6 +295,21 @@ impl Mpu {
                 + DRACR::B.val(b.into())
                 + DRACR::S.val(s.into()),
         );
+    }
+}
+
+pub struct EnabledMpuHandle(());
+
+impl EnabledMpuHandle {
+    pub fn disable(self) -> DisabledMpuHandle {
+        assert!(is_mpu_enabled());
+
+        // TODO: critical section
+        // TODO: disable cache
+
+        SCTLR.modify(SCTLR::M.val(0));
+
+        DisabledMpuHandle(())
     }
 }
 

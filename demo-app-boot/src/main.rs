@@ -11,7 +11,7 @@ use core::{
     sync::atomic::{self, Ordering},
 };
 
-use mpu::{MpuRegion, MpuRegionSize};
+use mpu::{DisabledMpuHandle, MpuRegion, MpuRegionSize};
 use panic::PANIC_LOG;
 use trace_buffers::CircularTraceBuffer;
 
@@ -127,7 +127,9 @@ fn main() -> ! {
         writeln!(DEBUG_LOG, "Hello world!").unwrap();
     }
 
-    mpu::Mpu::init(
+    let mpu_handle = unsafe { mpu::DisabledMpuHandle::new() };
+
+    let mpu_handle = mpu_handle.enable(
         &[
             MpuRegion {
                 base_address: 0x0,
