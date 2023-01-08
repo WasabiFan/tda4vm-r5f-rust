@@ -61,7 +61,7 @@ SECTIONS
         KEEP(*/libdemo_app.a:*(.eh_frame*))
     } > DDR_0
 
-    .data :
+    .ddr.data :
     {
         . = ALIGN (4);
         */libdemo_app.a:*(vtable)
@@ -84,7 +84,7 @@ SECTIONS
         KEEP(*/libdemo_app.a:*(.jcr*))
     } > DDR_0
 
-    .bss :
+    .ddr.bss :
     {
         . = ALIGN(4);
         */libdemo_app.a:*(.bss*)
