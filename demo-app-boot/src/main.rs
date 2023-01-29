@@ -18,11 +18,11 @@ use trace_buffers::CircularTraceBuffer;
 use cortex_r5_pac::registers::Readable;
 use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
-#[link(name = "demo_app", kind = "static")]
+#[link(name = "demo_app", kind = "static", modifiers = "+whole-archive")]
 extern "C" {
-    #[link_name = "MYMAGICPREFIXrun_me_from_ddr_too"]
+    #[link_name = "run_me_from_ddr_too"]
     pub fn run_me_from_ddr_too(x: u32) -> u32;
-    #[link_name = "MYMAGICPREFIXget_reg_from_ddr"]
+    #[link_name = "get_reg_from_ddr"]
     pub fn get_reg_from_ddr() -> u32;
 }
 

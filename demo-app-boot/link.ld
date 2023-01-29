@@ -162,14 +162,15 @@ SECTIONS
         *(COMMON)
     } > TCMA
 
-    .heap (COPY):
+    /* .heap (COPY):
     {
         . = ALIGN(4);
         __end__ = .;
         PROVIDE(end = .);
         *(.heap*)
         __HeapLimit = .;
-    } > TCMA
+    } > TCMA */
+    __HeapLimit = .;
 
     /* .stack_dummy section doesn't contains any symbols. It is only
         * used for linker to calculate size of stack sections, and assign

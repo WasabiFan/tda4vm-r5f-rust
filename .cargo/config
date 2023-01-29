@@ -7,6 +7,16 @@ rustflags = [
 
   # LLD (shipped with the Rust toolchain) is used as the default linker
   "-C", "link-arg=-Tlink.ld",
+
+  #"-C", "linker=arm-none-eabi-ld",
+  
+  #"-C", "link-arg=--error-unresolved-symbols",
+
+  "-C", "link-arg=--fatal-warnings",
+  #"-C", "link-arg=--no-allow-multiple-definition",
+  #"-C", "link-arg=--warn-common",
+  #"-C", "link-arg=--error-unresolved-symbols",
+  
 ]
 
 [profile.release]
