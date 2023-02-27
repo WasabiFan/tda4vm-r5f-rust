@@ -31,14 +31,26 @@ fn main() {
     // ]).status().expect("objcopy failed");
     
     let status = Command::new("arm-none-eabi-ld").args([
-        "--relocatable",
-        "--export-dynamic-symbol", "run_me_from_ddr_too",
+        "-relocatable",
+        "--whole-archive",
+        // "--no-gc-sections",
+        // "--export-dynamic-symbol", "run_me_from_ddr_too",
         "-o",
-        &out.join("libdemo_appmodified.a").display().to_string(),
+        &out.join("libdemo_app_intermediate.a").display().to_string(),
         &out.join("../../../libdemo_app.a").display().to_string(),
     ]).status().expect("ld reloc failed");
     assert!(status.success());
     println!("{}", out.join("libdemo_appmodified.a").display().to_string());
+
+    let status = Command::new("arm-none-eabi-objcopy").args([
+        "--redefine-sym", "rust_begin_unwind=rust_begin_unwind_lib",
+        "--redefine-sym", "_ZN4core3fmt5write17hb5d6751d706a0b13E=_ZN4core3fmt5write17hb5d6751d706a0b13ERENAMED",
+        // "--no-gc-sections",
+        // "--export-dynamic-symbol", "run_me_from_ddr_too",
+        &out.join("libdemo_app_intermediate.a").display().to_string(),
+        &out.join("libdemo_appmodified.a").display().to_string(),
+    ]).status().expect("objcopy failed");
+    
 
     // Enable linking against final main app lib artifact
     // TODO: is there a better way to point to this file? Maybe move link attribute here and use a full path.
