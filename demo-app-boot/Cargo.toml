@@ -2,17 +2,20 @@
 name = "demo-app-boot"
 version = "0.1.0"
 edition = "2021"
-links = "demo-app"
+# links = "demo-app"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 remoteproc-resource-table = { path = "../remoteproc-resource-table" }
 cortex-r5-pac = { path = "../cortex-r5-pac" }
-demo-app = { path = "../demo-app" }
+# demo-app = { path = "../demo-app" }
 
-[[bin]]
-name = "demo-app"
-path = "src/main.rs"
-test = false
-bench = false
+# [[bin]]
+# name = "demo-app"
+# path = "src/main.rs"
+# test = false
+# bench = false
+
+[lib]
+crate-type = [ "staticlib" ]

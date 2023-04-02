@@ -18,7 +18,7 @@ use trace_buffers::CircularTraceBuffer;
 use cortex_r5_pac::registers::Readable;
 use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
-#[link(name = "demo_appmodified", kind = "static", modifiers = "+whole-archive")]
+// #[link(name = "demo_appmodified", kind = "static", modifiers = "+whole-archive")]
 extern "C" {
     #[link_name = "run_me_from_ddr_too"]
     pub fn run_me_from_ddr_too(x: u32) -> u32;
