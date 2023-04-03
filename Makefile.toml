@@ -1,10 +1,10 @@
 [env]
 HARDWARE_TARGET = "armv7r-none-eabihf"
-
-[config]
-default_to_workspace = false
+# TODO: this doesn't work if cargo-make is executed within a crate
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 
 [tasks.build]
+clear = true
 command = "cargo"
 args = [
     "build",
@@ -20,12 +20,14 @@ args = [
 ]
 
 [tasks.test]
+clear = true
 command = "cargo"
 args = [
     "test",
 ]
 
 [tasks.check]
+clear = true
 command = "cargo"
 args = [
     "check",
@@ -33,12 +35,14 @@ args = [
 ]
 
 [tasks.format]
+clear = true
 command = "cargo"
 args = [
     "fmt",
 ]
 
 [tasks.clippy]
+clear = true
 command = "cargo"
 args = [
     "clippy",

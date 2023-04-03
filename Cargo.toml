@@ -1,8 +1,8 @@
 [workspace]
 
 members = [
-    "remoteproc-resource-table",
-    "cortex-r5-pac",
-    "demo-app",
-    "demo-app-boot",
+    "libs/remoteproc-resource-table",
+    "libs/cortex-r5-pac",
+    "demo/demo-app",
+    "demo/demo-app-boot",
 ]
