@@ -1,7 +1,7 @@
+extend = "../Makefile.common.toml"
+
 [env]
 HARDWARE_TARGET = "armv7r-none-eabihf"
-# TODO: this doesn't work if cargo-make is executed within a crate
-CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 
 [tasks.build]
 clear = true
@@ -19,26 +19,12 @@ args = [
     "--release",
 ]
 
-[tasks.test]
-clear = true
-command = "cargo"
-args = [
-    "test",
-]
-
 [tasks.check]
 clear = true
 command = "cargo"
 args = [
     "check",
     "--target", "${HARDWARE_TARGET}",
-]
-
-[tasks.format]
-clear = true
-command = "cargo"
-args = [
-    "fmt",
 ]
 
 [tasks.clippy]
