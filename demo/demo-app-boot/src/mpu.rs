@@ -9,7 +9,7 @@ use cortex_r5_pac::registers::{
 
 #[derive(Eq, PartialEq)]
 pub struct MpuRegion {
-    /// Region. Must be aligned to
+    /// Region. Must be aligned to its own size.
     pub base_address: u32,
     pub size: MpuRegionSize,
     pub attributes: MpuRegionAttributes,
