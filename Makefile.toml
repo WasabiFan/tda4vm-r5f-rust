@@ -35,6 +35,7 @@ args = [
 ]
 
 [tasks.size-release]
+workspace = false
 command = "${DEVICE_TOOLCHAIN_PREFIX}size"
 args = [
     "-Ax",
