@@ -1,0 +1,17 @@
+[env]
+HARDWARE_TARGET = "armv7r-none-eabihf"
+
+[tasks.build]
+clear = true
+
+[tasks.link]
+workspace = false
+command = "arm-none-eabi-ld"
+# TODO: support release builds
+args = [
+    "--error-unresolved-symbols",
+    "./target/${HARDWARE_TARGET}/debug/demo-app-boot",
+    "./target/${HARDWARE_TARGET}/debug/demo-app-main",
+    "-T", "./demo/link.ld",
+    "-o", "./target/${HARDWARE_TARGET}/debug/demo_app.elf",
+]

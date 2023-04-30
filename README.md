@@ -51,22 +51,31 @@ rustup target add armv7r-none-eabihf
 cargo install cargo-make
 ```
 
+You will also need the arm-none-eabi binutils from Arm available on your PATH (for arm-none-eabi-ld).
+
 ## Usage
 
 Build the demo app:
 
 ```
 cargo make build
+cargo make link
+```
+
+Copy the demo app to the device:
+
+```
+scp ./target/armv7r-none-eabihf/debug/demo_app.elf debian@beaglebone.local:~/
 ```
 
 Run the demo app (on-device):
 
 ```
-cp demo-app /lib/firmware/demo-app.elf
+cp demo_app.elf /lib/firmware/
 
 echo stop | sudo tee /dev/remoteproc/j7-main-r5f1_0/state
 # Ignore "Invalid argument" errors here; this likely means the core is already stopped
-echo demo-app.elf | sudo tee /dev/remoteproc/j7-main-r5f1_0/firmware
+echo demo_app.elf | sudo tee /dev/remoteproc/j7-main-r5f1_0/firmware
 echo start | sudo tee /dev/remoteproc/j7-main-r5f1_0/state
 
 sudo ls /dev/remoteproc/j7-main-r5f1_0/device/remoteproc/

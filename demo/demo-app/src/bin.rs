@@ -1,4 +1,5 @@
 #![no_std]
+#![no_main]
 
 use core::arch::asm;
 

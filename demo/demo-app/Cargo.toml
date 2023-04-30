@@ -8,5 +8,7 @@ edition = "2021"
 [dependencies]
 cortex-r5-pac = { path = "../../libs/cortex-r5-pac" }
 
-[lib]
-crate-type = [ "staticlib" ]
+[[bin]]
+name = "demo-app-main"
+path = "src/bin.rs"
+test = false

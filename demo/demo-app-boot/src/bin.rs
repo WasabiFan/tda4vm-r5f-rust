@@ -18,7 +18,6 @@ use trace_buffers::CircularTraceBuffer;
 use cortex_r5_pac::registers::Readable;
 use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
 
-#[link(name = "demo_app", kind = "static")]
 extern "C" {
     pub fn run_me_from_ddr_too(x: u32) -> u32;
     pub fn get_reg_from_ddr() -> u32;
@@ -43,7 +42,7 @@ resource_table![
 global_asm!(
     r#"
     .section .isr_vector, "ax"
-    .type start, %function
+    .type _start, %function
     .type isr_vector, %function
     .global _start
     .global isr_vector

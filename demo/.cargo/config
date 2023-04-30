@@ -1,12 +1,19 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
-
 rustflags = [
   # This is needed if your flash or ram addresses are not aligned to 0x10000 in memory.x
   # See https://github.com/rust-embedded/cortex-m-quickstart/pull/95
   "-C", "link-arg=--nmagic",
 
-  # LLD (shipped with the Rust toolchain) is used as the default linker
+  # Appply local (per-crate, i.e. one for boot and one for main) linkerscript
   "-C", "link-arg=-Tlink.ld",
+
+  # Do a "partial link", i.e. the produced ELF is allowed to have unresolved symbols and can be
+  # fed back into the linker for final symbol resolutiona and placement.
+  "-C", "link-arg=--relocatable",
+
+  # Symbol garbage collection cleans up all the unused stdlib stuff, but pub/extern symbls need to
+  # be kept so they can be referenced by other binary components of our app. 
+  "-C", "link-arg=--gc-keep-exported",
 ]
 
 [profile.dev]
@@ -20,3 +27,7 @@ codegen-units = 1 # better optimizations
 debug = true # symbols are nice and they don't increase the size on Flash
 lto = true # better optimizations
 opt-level = "s"
+
+# Use GNU ld because it supports -r (--relocatable)
+[target.armv7r-none-eabihf]
+linker = "arm-none-eabi-ld"
