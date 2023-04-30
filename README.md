@@ -58,8 +58,7 @@ You will also need the arm-none-eabi binutils from Arm available on your PATH (f
 Build the demo app:
 
 ```
-cargo make build
-cargo make link
+cargo make app
 ```
 
 Copy the demo app to the device:

@@ -12,6 +12,7 @@ args = [
 ]
 
 [tasks.build-release]
+clear = true
 command = "cargo"
 args = [
     "build",

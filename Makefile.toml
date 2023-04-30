@@ -10,18 +10,41 @@ PARTIAL_APP_MAIN_RELEASE = "./target/${HARDWARE_TARGET}/release/demo-app-main"
 
 [tasks.build]
 clear = true
+run_task = { name = "build", fork = true }
+
+[tasks.build-release]
+clear = true
+run_task = { name = "build-release", fork = true }
 
 [tasks.link]
 workspace = false
-command = "arm-none-eabi-ld"
-# TODO: support release builds
+command = "${DEVICE_TOOLCHAIN_PREFIX}ld"
 args = [
     "--error-unresolved-symbols",
-    "./target/${HARDWARE_TARGET}/debug/demo-app-boot",
-    "./target/${HARDWARE_TARGET}/debug/demo-app-main",
+    "${PARTIAL_APP_BOOT_DEBUG}",
+    "${PARTIAL_APP_MAIN_DEBUG}",
     "-T", "./demo/link.ld",
     "-o", "${OUT_APP_DEBUG}",
 ]
+
+[tasks.link-release]
+workspace = false
+command = "${DEVICE_TOOLCHAIN_PREFIX}ld"
+args = [
+    "--error-unresolved-symbols",
+    "${PARTIAL_APP_BOOT_RELEASE}",
+    "${PARTIAL_APP_MAIN_RELEASE}",
+    "-T", "./demo/link.ld",
+    "-o", "${OUT_APP_RELEASE}",
+]
+
+[tasks.app]
+workspace = false
+dependencies = [ "build", "link" ]
+
+[tasks.app-release]
+workspace = false
+dependencies = [ "build-release", "link-release" ]
 
 [tasks.size]
 workspace = false
