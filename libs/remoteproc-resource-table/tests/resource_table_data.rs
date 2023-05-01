@@ -1,5 +1,6 @@
 use remoteproc_resource_table::{
-    resource_table, ResourceTableTargetAddress, TraceResourceTypeData, ZeroBytes,
+    packing::{ResourceTableTargetAddress, ZeroBytes},
+    resource_table, TraceResourceTypeData,
 };
 
 fn resource_table_bytes<'a, T>(resource_table: &'a T) -> &'a [u8] {

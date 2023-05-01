@@ -1,5 +1,6 @@
 use remoteproc_resource_table::{
-    resource_table, ResourceTableTargetAddress, TraceResourceTypeData, ZeroBytes,
+    packing::{ResourceTableTargetAddress, ZeroBytes},
+    resource_table, TraceResourceTypeData,
 };
 
 #[test]
