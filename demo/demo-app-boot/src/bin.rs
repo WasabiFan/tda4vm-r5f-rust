@@ -16,7 +16,11 @@ use panic::PANIC_LOG;
 use trace_buffers::CircularTraceBuffer;
 
 use cortex_r5_pac::registers::Readable;
-use remoteproc_resource_table::{resource_table, TraceResourceTypeData};
+use remoteproc_resource_table::{
+    packing::{ResourceTableTargetAddress, ZeroBytes},
+    resource_table,
+    trace::TraceResourceTypeData,
+};
 
 extern "C" {
     pub fn run_me_from_ddr_too(x: u32) -> u32;

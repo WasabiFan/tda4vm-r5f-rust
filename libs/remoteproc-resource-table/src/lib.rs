@@ -3,9 +3,11 @@
 mod entries;
 pub mod packing;
 
-pub use entries::trace::TraceResourceTypeData;
-pub use entries::vdev::{VdevResourceTypeData, VdevResourceVringDescriptor};
+pub use entries::trace;
+pub use entries::vdev;
+
 pub use entries::FwResourceType;
+
 use packing::ZeroBytes;
 
 #[macro_export]
@@ -22,10 +24,16 @@ macro_rules! resource_table {
     [ $(static $entry_name:ident : $entry_type:ty = $entry_value:expr);*$(;)? ] => {
         const __REMOTEPROC_RESOURCE_TABLE_N: usize = $crate::count_tts!($($entry_name) *);
 
+        #[repr(C)]
+        pub struct __REMOTEPROC_RESOURCE_TABLE_STRUCT(
+            $crate::ResourceTableHeader<__REMOTEPROC_RESOURCE_TABLE_N>,
+            $($crate::ResourceEntry<$entry_type>),*
+        );
+
         #[cfg_attr(not(test), link_section = ".resource_table")]
         #[cfg_attr(not(test), no_mangle)]
         #[used]
-        pub static __REMOTEPROC_RESOURCE_TABLE: ($crate::ResourceTableHeader<__REMOTEPROC_RESOURCE_TABLE_N>, ($($crate::ResourceEntry<$entry_type>),*)) = {
+        pub static __REMOTEPROC_RESOURCE_TABLE: __REMOTEPROC_RESOURCE_TABLE_STRUCT = {
             const fn header<const N: usize>(sizes: [u32; N]) -> $crate::ResourceTableHeader<N> {
                 let mut offset = [ 0u32; N ];
 
@@ -49,14 +57,16 @@ macro_rules! resource_table {
             }
 
             let sizes = [ $(core::mem::size_of::<$crate::ResourceEntry<$entry_type>>() as u32),*];
-            let bodies = ( $(
+
+            __REMOTEPROC_RESOURCE_TABLE_STRUCT(
+                header(sizes),
+                $(
                 $crate::ResourceEntry {
                     resource_type: <$entry_type>::get_resource_type(),
                     data: $entry_value
                 }
-            ),* );
-
-            (header(sizes), bodies)
+                ),*
+            )
         };
     }
 }
