@@ -11,7 +11,7 @@ use core::{
     sync::atomic::{self, Ordering},
 };
 
-use mpu::{DisabledMpuHandle, MpuRegion, MpuRegionSize};
+use mpu::{MpuRegion, MpuRegionSize};
 use panic::PANIC_LOG;
 use trace_buffers::CircularTraceBuffer;
 
@@ -20,6 +20,7 @@ use remoteproc_resource_table::{
     packing::{ResourceTableTargetAddress, ZeroBytes},
     resource_table,
     trace::TraceResourceTypeData,
+    vdev::{RpmsgFeatures, VdevResourceTypeData, VdevResourceVringDescriptor, VirtIODeviceId},
 };
 
 extern "C" {
@@ -38,6 +39,32 @@ resource_table![
         TraceResourceTypeData::from_buffer("debug", unsafe { &DEBUG_LOG.buffer });
     static panic_log: TraceResourceTypeData =
         TraceResourceTypeData::from_buffer("panic", unsafe { &PANIC_LOG.buffer });
+    static rpmesg_log: VdevResourceTypeData<2> = VdevResourceTypeData {
+        id: VirtIODeviceId::VIRTIO_ID_RPMSG,
+        notifyid: 0, // TODO
+        dfeatures: RpmsgFeatures::VIRTIO_RPMSG_F_NS.bits(),
+        gfeatures: 0,  // To be populated by host
+        config_len: 0, // Config space not supported
+        status: 0,
+        num_of_vrings: 2,
+        _reserved: ZeroBytes::new(),
+        vring: [
+            VdevResourceVringDescriptor {
+                device_address: ResourceTableTargetAddress::ADDR_ANY,
+                align: 0x1000,
+                num: 8,
+                notifyid: 1,
+                physical_address: ResourceTableTargetAddress::ADDR_ANY,
+            },
+            VdevResourceVringDescriptor {
+                device_address: ResourceTableTargetAddress::ADDR_ANY,
+                align: 0x1000,
+                num: 8,
+                notifyid: 2,
+                physical_address: ResourceTableTargetAddress::ADDR_ANY,
+            },
+        ],
+    };
 ];
 
 // TODO: did TI add any custom interrupt hardware?

@@ -3,6 +3,12 @@
 version = 3
 
 [[package]]
+name = "bitflags"
+version = "2.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24a6904aef64d73cf10ab17ebace7befb918b82164785cb89907993be7f83813"
+
+[[package]]
 name = "cortex-r5-pac"
 version = "0.1.0"
 dependencies = [
@@ -27,6 +33,9 @@ dependencies = [
 [[package]]
 name = "remoteproc-resource-table"
 version = "0.1.0"
+dependencies = [
+ "bitflags",
+]
 
 [[package]]
 name = "tock-registers"

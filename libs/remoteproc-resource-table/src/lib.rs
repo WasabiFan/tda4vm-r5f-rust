@@ -3,6 +3,7 @@
 mod entries;
 pub mod packing;
 
+pub use entries::carveout;
 pub use entries::trace;
 pub use entries::vdev;
 
@@ -61,10 +62,10 @@ macro_rules! resource_table {
             __REMOTEPROC_RESOURCE_TABLE_STRUCT(
                 header(sizes),
                 $(
-                $crate::ResourceEntry {
-                    resource_type: <$entry_type>::get_resource_type(),
-                    data: $entry_value
-                }
+                    $crate::ResourceEntry {
+                        resource_type: <$entry_type>::get_resource_type(),
+                        data: $entry_value
+                    }
                 ),*
             )
         };
