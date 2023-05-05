@@ -20,7 +20,7 @@ fn test_single_trace_entry() {
     };
     resource_table! {
         static TEST_LOG: TraceResourceTypeData = TraceResourceTypeData {
-            device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
+            device_address: ResourceTableTargetAddress::new(0x12345678 as *const u8),
             length: 100,
             _reserved: ZeroBytes::new(),
             name: NAME,
@@ -80,13 +80,13 @@ fn test_two_trace_entries() {
     };
     resource_table! {
         static TEST_LOG_1: TraceResourceTypeData = TraceResourceTypeData {
-            device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
+            device_address: ResourceTableTargetAddress::new(0x12345678 as *const u8),
             length: 100,
             _reserved: ZeroBytes::new(),
             name: NAME_1,
         };
         static TEST_LOG_2: TraceResourceTypeData = TraceResourceTypeData {
-            device_address: ResourceTableTargetAddress(0xabcdefab as *const u8),
+            device_address: ResourceTableTargetAddress::new(0xabcdefab as *const u8),
             length: 200,
             _reserved: ZeroBytes::new(),
             name: NAME_2,

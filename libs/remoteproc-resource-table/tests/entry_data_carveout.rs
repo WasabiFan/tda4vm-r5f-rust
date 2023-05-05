@@ -20,8 +20,8 @@ fn test_single_carveout_entry() {
     };
     resource_table! {
         static TEST_VDEV: CarveoutResourceTypeData = CarveoutResourceTypeData {
-            device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
-            physical_address: ResourceTableTargetAddress(0xABCDEFAB as *const u8),
+            device_address: ResourceTableTargetAddress::new(0x12345678 as *const u8),
+            physical_address: ResourceTableTargetAddress::new(0xABCDEFAB as *const u8),
             length: 0x11223344,
             flags: 0x87654321,
             _reserved: ZeroBytes::new(),

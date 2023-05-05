@@ -67,6 +67,9 @@ resource_table![
     };
 ];
 
+static RPMESG_TX_VRING_DESCRIPTOR: &VdevResourceVringDescriptor = &RPMESG_LOG_RESOURCE.vring[0];
+static RPMESG_RX_VRING_DESCRIPTOR: &VdevResourceVringDescriptor = &RPMESG_LOG_RESOURCE.vring[1];
+
 // TODO: did TI add any custom interrupt hardware?
 // Vectored ISR handler table. Ref: https://developer.arm.com/documentation/ddi0460/d/Programmers-Model/Exceptions/Exception-vectors?lang=en
 // Note: the ELF entry point needs to also refer to this table, so we declare _start here since the linker seems to like that.
@@ -222,6 +225,16 @@ fn main() -> ! {
         .unwrap();
     }
 
+    unsafe {
+        writeln!(
+            DEBUG_LOG,
+            "Allocated TX vring address: {:?} and RX vring address: {:?}",
+            RPMESG_TX_VRING_DESCRIPTOR.read_device_address(),
+            RPMESG_RX_VRING_DESCRIPTOR.read_device_address(),
+        )
+        .unwrap();
+    }
+
     let mut x = 0usize;
     loop {
         // Dummy busy loop to prevent termination and provide something to observe in the debugger
@@ -233,7 +246,7 @@ fn main() -> ! {
             };
         }
 
-        if x > 200_000_000 {
+        if x > 1_000_000_000 {
             panic!("panik");
         }
     }

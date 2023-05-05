@@ -18,7 +18,7 @@ impl TraceResourceTypeData {
 
     pub const fn from_buffer(name: &str, buffer: &[u8]) -> Self {
         Self {
-            device_address: ResourceTableTargetAddress(buffer.as_ptr()),
+            device_address: ResourceTableTargetAddress::new(buffer.as_ptr()),
             length: buffer.len() as u32,
             _reserved: ZeroBytes::new(),
             name: fixed_length_str(name),

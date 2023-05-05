@@ -18,6 +18,18 @@ pub struct VdevResourceVringDescriptor {
     pub physical_address: ResourceTableTargetAddress,
 }
 
+impl VdevResourceVringDescriptor {
+    pub fn read_device_address(&self) -> Option<*const u8> {
+        let address = self.device_address;
+        address.read()
+    }
+
+    pub fn read_physical_address(&self) -> Option<*const u8> {
+        let address = self.physical_address;
+        address.read()
+    }
+}
+
 #[repr(C, packed)]
 pub struct VdevResourceTypeData<const N: usize> {
     pub id: VirtIODeviceId,
