@@ -4,7 +4,7 @@ use remoteproc_resource_table::{
     trace::TraceResourceTypeData,
 };
 
-mod utils;
+pub mod utils;
 use utils::resource_table_bytes;
 
 #[test]
@@ -19,7 +19,7 @@ fn test_single_trace_entry() {
         val
     };
     resource_table! {
-        static test_log: TraceResourceTypeData = TraceResourceTypeData {
+        static TEST_LOG: TraceResourceTypeData = TraceResourceTypeData {
             device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
             length: 100,
             _reserved: ZeroBytes::new(),
@@ -79,13 +79,13 @@ fn test_two_trace_entries() {
         val
     };
     resource_table! {
-        static test_log_1: TraceResourceTypeData = TraceResourceTypeData {
+        static TEST_LOG_1: TraceResourceTypeData = TraceResourceTypeData {
             device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
             length: 100,
             _reserved: ZeroBytes::new(),
             name: NAME_1,
         };
-        static test_log_2: TraceResourceTypeData = TraceResourceTypeData {
+        static TEST_LOG_2: TraceResourceTypeData = TraceResourceTypeData {
             device_address: ResourceTableTargetAddress(0xabcdefab as *const u8),
             length: 200,
             _reserved: ZeroBytes::new(),
@@ -144,7 +144,7 @@ fn test_trace_from_buffer() {
     // Given
     static DUMMY_BUFFER: [u8; 100] = [0; 100];
     resource_table! {
-        static test_log: TraceResourceTypeData = TraceResourceTypeData::from_buffer("123", &DUMMY_BUFFER);
+        static TEST_LOG: TraceResourceTypeData = TraceResourceTypeData::from_buffer("123", &DUMMY_BUFFER);
     };
     let actual = resource_table_bytes(&__REMOTEPROC_RESOURCE_TABLE);
 

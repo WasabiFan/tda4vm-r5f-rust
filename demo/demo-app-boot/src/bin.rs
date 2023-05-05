@@ -35,11 +35,11 @@ static mut DEBUG_LOG: CircularTraceBuffer<4096> = CircularTraceBuffer::new();
 compile_error!("Requires 32-bit pointers");
 
 resource_table![
-    static debug_log: TraceResourceTypeData =
+    static DEBUG_LOG_RESOURCE: TraceResourceTypeData =
         TraceResourceTypeData::from_buffer("debug", unsafe { &DEBUG_LOG.buffer });
-    static panic_log: TraceResourceTypeData =
+    static PANIC_LOG_RESOURCE: TraceResourceTypeData =
         TraceResourceTypeData::from_buffer("panic", unsafe { &PANIC_LOG.buffer });
-    static rpmesg_log: VdevResourceTypeData<2> = VdevResourceTypeData {
+    static RPMESG_LOG_RESOURCE: VdevResourceTypeData<2> = VdevResourceTypeData {
         id: VirtIODeviceId::VIRTIO_ID_RPMSG,
         notifyid: 0, // TODO
         dfeatures: RpmsgFeatures::VIRTIO_RPMSG_F_NS.bits(),

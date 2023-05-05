@@ -4,6 +4,9 @@ use remoteproc_resource_table::{
     trace::TraceResourceTypeData,
 };
 
+pub mod utils;
+use utils::DummyTraceResourceData;
+
 #[test]
 fn test_arbitrary_expression_in_entry_decl() {
     // Given
@@ -19,9 +22,24 @@ fn test_arbitrary_expression_in_entry_decl() {
         }
     }
     resource_table![
-        static foo: TraceResourceTypeData = Foo::make_a_trace();
+        static FOO: TraceResourceTypeData = Foo::make_a_trace();
     ];
 
     // Then
-    assert_eq!(__REMOTEPROC_RESOURCE_TABLE.0.num as u32, 1);
+    assert_eq!(__REMOTEPROC_RESOURCE_TABLE.__header.num as u32, 1);
+}
+
+#[test]
+fn test_named_fields() {
+    // Given
+
+    resource_table![
+        static FOO: DummyTraceResourceData<1> = DummyTraceResourceData([0]);
+        static BAR: DummyTraceResourceData<1> = DummyTraceResourceData([1]);
+    ];
+
+    // Then
+    assert_eq!(__REMOTEPROC_RESOURCE_TABLE.__header.num as u32, 2);
+    assert_eq!(*FOO, DummyTraceResourceData([0]));
+    assert_eq!(*BAR, DummyTraceResourceData([1]));
 }

@@ -4,7 +4,7 @@ use remoteproc_resource_table::{
     resource_table,
 };
 
-mod utils;
+pub mod utils;
 use utils::resource_table_bytes;
 
 #[test]
@@ -19,7 +19,7 @@ fn test_single_carveout_entry() {
         val
     };
     resource_table! {
-        static test_vdev: CarveoutResourceTypeData = CarveoutResourceTypeData {
+        static TEST_VDEV: CarveoutResourceTypeData = CarveoutResourceTypeData {
             device_address: ResourceTableTargetAddress(0x12345678 as *const u8),
             physical_address: ResourceTableTargetAddress(0xABCDEFAB as *const u8),
             length: 0x11223344,
