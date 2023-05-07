@@ -1,7 +1,5 @@
 //! A client interface for the Cortex-R5 MPU (Memory Protection Unit).
 
-use core::fmt::Write;
-
 use cortex_r5_pac::registers::{
     system_control::{DRACR, DRBAR, DRSR, RGNR, SCTLR},
     ReadWriteable, Readable, Writeable,
