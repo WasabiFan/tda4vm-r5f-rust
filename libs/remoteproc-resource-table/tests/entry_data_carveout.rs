@@ -20,8 +20,8 @@ fn test_single_carveout_entry() {
     };
     resource_table! {
         static TEST_VDEV: CarveoutResourceTypeData = CarveoutResourceTypeData {
-            device_address: ResourceTableTargetAddress::new(0x12345678 as *const u8),
-            physical_address: ResourceTableTargetAddress::new(0xABCDEFAB as *const u8),
+            device_address: ResourceTableTargetAddress::with_value(0x12345678),
+            physical_address: ResourceTableTargetAddress::with_value(0xABCDEFAB),
             length: 0x11223344,
             flags: 0x87654321,
             _reserved: ZeroBytes::new(),
@@ -48,9 +48,9 @@ fn test_single_carveout_entry() {
             // type
             0u32.to_le_bytes(),
             // da
-            (0x12345678u32 as *const u8 as usize).to_le_bytes(),
+            0x12345678u32.to_le_bytes(),
             // pa
-            (0xABCDEFABu32 as *const u8 as usize).to_le_bytes(),
+            0xABCDEFABu32.to_le_bytes(),
             // len
             0x11223344u32.to_le_bytes(),
             // flags

@@ -3,7 +3,7 @@ use crate::{
     FwResourceType,
 };
 
-#[repr(C, packed)]
+#[repr(C)]
 pub struct CarveoutResourceTypeData {
     pub device_address: ResourceTableTargetAddress,
     pub physical_address: ResourceTableTargetAddress,

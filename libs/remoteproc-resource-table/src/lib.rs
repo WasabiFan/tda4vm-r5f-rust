@@ -11,6 +11,8 @@ pub use entries::FwResourceType;
 
 use packing::ZeroBytes;
 
+pub extern crate memoffset;
+
 #[macro_export]
 macro_rules! count_tts {
     () => { 0 };
@@ -34,32 +36,19 @@ macro_rules! resource_table {
         #[cfg_attr(not(test), no_mangle)]
         #[used]
         pub static __REMOTEPROC_RESOURCE_TABLE: __REMOTEPROC_RESOURCE_TABLE_STRUCT = {
-            const fn header<const N: usize>(sizes: [u32; N]) -> $crate::ResourceTableHeader<N> {
-                let mut offset = [ 0u32; N ];
+            let offset: [ u32; __REMOTEPROC_RESOURCE_TABLE_N ] = [
+                $($crate::memoffset::offset_of!(__REMOTEPROC_RESOURCE_TABLE_STRUCT, $entry_name) as u32),*
+            ];
 
-                if N > 0 {
-                    offset[0] = core::mem::size_of::<$crate::ResourceTableHeader<N>>() as u32;
-
-                    let mut i = 1;
-                    loop {
-                        if i >= N { break }
-                        offset[i] = offset[i-1] + sizes[i-1];
-                        i += 1;
-                    }
-                }
-
-                $crate::ResourceTableHeader {
-                    ver: 1,
-                    num: N as u32,
-                    _reserved: $crate::packing::ZeroBytes::new(),
-                    offset
-                }
-            }
-
-            let sizes = [ $(core::mem::size_of::<$crate::ResourceEntry<$entry_type>>() as u32),*];
+            let header = $crate::ResourceTableHeader {
+                ver: 1,
+                num: __REMOTEPROC_RESOURCE_TABLE_N as u32,
+                _reserved: $crate::packing::ZeroBytes::new(),
+                offset
+            };
 
             __REMOTEPROC_RESOURCE_TABLE_STRUCT {
-                __header: header(sizes),
+                __header: header,
                 $(
                     $entry_name: $crate::ResourceEntry {
                         resource_type: <$entry_type>::get_resource_type(),
@@ -73,7 +62,7 @@ macro_rules! resource_table {
     }
 }
 
-#[repr(C, packed)]
+#[repr(C)]
 pub struct ResourceTableHeader<const N: usize> {
     pub ver: u32,
     pub num: u32,
@@ -81,7 +70,7 @@ pub struct ResourceTableHeader<const N: usize> {
     pub offset: [u32; N],
 }
 
-#[repr(C, packed)]
+#[repr(C)]
 pub struct ResourceEntry<T> {
     pub resource_type: FwResourceType,
     pub data: T,

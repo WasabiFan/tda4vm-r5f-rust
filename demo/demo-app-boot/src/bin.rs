@@ -20,7 +20,10 @@ use remoteproc_resource_table::{
     packing::{ResourceTableTargetAddress, ZeroBytes},
     resource_table,
     trace::TraceResourceTypeData,
-    vdev::{RpmsgFeatures, VdevResourceTypeData, VdevResourceVringDescriptor, VirtIODeviceId},
+    vdev::{
+        RpmsgFeatures, VdevResourceTypeData, VdevResourceVringDescriptor, VirtIODeviceId,
+        VirtIOStatus,
+    },
 };
 
 extern "C" {
@@ -45,8 +48,8 @@ resource_table![
         dfeatures: RpmsgFeatures::VIRTIO_RPMSG_F_NS.bits(),
         gfeatures: 0,  // To be populated by host
         config_len: 0, // Config space not supported
-        status: 0,
-        num_of_vrings: 2,
+        status: VirtIOStatus::empty(),
+        num_of_vrings: 2, // TODO: constructor to enforce this
         _reserved: ZeroBytes::new(),
         vring: [
             VdevResourceVringDescriptor {
@@ -225,30 +228,37 @@ fn main() -> ! {
         .unwrap();
     }
 
-    unsafe {
-        writeln!(
-            DEBUG_LOG,
-            "Allocated TX vring address: {:?} and RX vring address: {:?}",
-            RPMESG_TX_VRING_DESCRIPTOR.read_device_address(),
-            RPMESG_RX_VRING_DESCRIPTOR.read_device_address(),
-        )
-        .unwrap();
-    }
-
     let mut x = 0usize;
+    // Dummy busy loop to demonstrate functionality and provide something to observe in the debugger
     loop {
-        // Dummy busy loop to prevent termination and provide something to observe in the debugger
-        x = x.wrapping_add(1);
-
         if x % 50_000_000 == 0 {
             unsafe {
                 writeln!(DEBUG_LOG, "Iter {}", x).unwrap();
             };
+
+            unsafe {
+                writeln!(
+                    DEBUG_LOG,
+                    "rpmsg VirtIO device status: {:?}",
+                    RPMESG_LOG_RESOURCE.read_status(),
+                )
+                .unwrap();
+                writeln!(
+                    DEBUG_LOG,
+                    "Allocated TX vring address: {:?} and RX vring address: {:?}",
+                    RPMESG_TX_VRING_DESCRIPTOR.read_device_address(),
+                    RPMESG_RX_VRING_DESCRIPTOR.read_device_address(),
+                )
+                .unwrap();
+            }
         }
 
-        if x > 1_000_000_000 {
+        if x > 100_000_000 {
+            // Demo panics
             panic!("panik");
         }
+
+        x = x.wrapping_add(1);
     }
 }
 

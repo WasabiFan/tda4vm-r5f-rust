@@ -14,7 +14,7 @@ fn test_arbitrary_expression_in_entry_decl() {
     impl Foo {
         pub const fn make_a_trace() -> TraceResourceTypeData {
             TraceResourceTypeData {
-                device_address: ResourceTableTargetAddress::new(0 as *const u8),
+                device_address: ResourceTableTargetAddress::with_value(0),
                 length: 0,
                 _reserved: ZeroBytes::new(),
                 name: [0; 32],
