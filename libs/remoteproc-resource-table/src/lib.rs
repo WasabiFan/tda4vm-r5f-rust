@@ -1,7 +1,9 @@
-#![no_std]
+#![cfg_attr(not(test), no_std)]
 
 mod entries;
 pub mod packing;
+#[cfg(test)]
+pub mod test_utils;
 
 pub use entries::carveout;
 pub use entries::trace;

@@ -5,10 +5,10 @@ use crate::{
 
 #[repr(C)]
 pub struct TraceResourceTypeData {
-    pub device_address: ResourceTableTargetAddress,
-    pub length: u32,
-    pub _reserved: ZeroBytes<4>,
-    pub name: [u8; 32],
+    device_address: ResourceTableTargetAddress,
+    length: u32,
+    _reserved: ZeroBytes<4>,
+    name: [u8; 32],
 }
 
 impl TraceResourceTypeData {
@@ -24,5 +24,47 @@ impl TraceResourceTypeData {
             _reserved: ZeroBytes::new(),
             name: crate::packing::fixed_length_str(name),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        packing::{ResourceTableTargetAddress, ZeroBytes},
+        test_utils::resource_table_bytes,
+        trace::TraceResourceTypeData,
+    };
+
+    #[test]
+    fn test_single_trace_entry() {
+        // Given
+        const NAME: [u8; 32] = {
+            let mut val = [0; 32];
+            val[0] = 123;
+            val[1] = 124;
+            val[2] = 125;
+            val[31] = 126;
+            val
+        };
+        let trace = TraceResourceTypeData {
+            device_address: ResourceTableTargetAddress::with_value(0x12345678),
+            length: 100,
+            _reserved: ZeroBytes::new(),
+            name: NAME,
+        };
+        let actual = resource_table_bytes(&trace);
+
+        // Then
+        let expected = crate::concat_bytes![
+            // da (device address)
+            0x12345678u32.to_le_bytes(),
+            // len
+            100u32.to_le_bytes(),
+            // reserved
+            0u32.to_le_bytes(),
+            // name
+            NAME,
+        ];
+        assert_eq!(actual, expected);
     }
 }

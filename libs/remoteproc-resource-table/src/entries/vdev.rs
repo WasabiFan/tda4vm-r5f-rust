@@ -32,18 +32,18 @@ impl VdevResourceVringDescriptor {
     }
 }
 
-// TODO: make most fields private
+// TODO: tests for vdev layout
 #[repr(C)]
 pub struct VdevResourceTypeData<const N: usize> {
-    pub id: VirtIODeviceId,
-    pub notifyid: u32,
-    pub dfeatures: u32,
-    pub gfeatures: u32,
-    pub config_len: u32,
-    pub status: VirtIOStatus,
-    pub num_of_vrings: u8,
-    pub _reserved: ZeroBytes<2>,
-    pub vring: [VdevResourceVringDescriptor; N],
+    id: VirtIODeviceId,
+    notifyid: u32,
+    dfeatures: u32,
+    gfeatures: u32,
+    config_len: u32,
+    status: VirtIOStatus,
+    num_of_vrings: u8,
+    _reserved: ZeroBytes<2>,
+    vring: [VdevResourceVringDescriptor; N],
     // TODO: config space
 }
 

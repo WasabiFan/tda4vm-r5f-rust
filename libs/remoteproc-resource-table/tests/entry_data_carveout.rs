@@ -1,32 +1,26 @@
 use remoteproc_resource_table::{
-    carveout::CarveoutResourceTypeData,
-    packing::{ResourceTableTargetAddress, ZeroBytes},
-    resource_table,
+    carveout::CarveoutResourceTypeData, packing::ResourceTableTargetAddress, resource_table,
 };
 
 pub mod utils;
 use utils::resource_table_bytes;
 
 #[test]
-fn test_single_carveout_entry() {
+fn test_carveout_new() {
     // Given
     const NAME: [u8; 32] = {
         let mut val = [0; 32];
-        val[0] = 123;
-        val[1] = 124;
-        val[2] = 125;
-        val[31] = 126;
+        val[0] = 0x31;
+        val[1] = 0x32;
+        val[2] = 0x33;
         val
     };
     resource_table! {
-        static TEST_VDEV: CarveoutResourceTypeData = CarveoutResourceTypeData {
-            device_address: ResourceTableTargetAddress::with_value(0x12345678),
-            physical_address: ResourceTableTargetAddress::with_value(0xABCDEFAB),
-            length: 0x11223344,
-            flags: 0x87654321,
-            _reserved: ZeroBytes::new(),
-            name: NAME,
-        };
+        static TEST_VDEV: CarveoutResourceTypeData = CarveoutResourceTypeData::new(
+            "123",
+            ResourceTableTargetAddress::with_value(0x12345678),
+            0x11223344,
+        );
     };
     let actual = resource_table_bytes(&__REMOTEPROC_RESOURCE_TABLE);
 
@@ -50,11 +44,11 @@ fn test_single_carveout_entry() {
             // da
             0x12345678u32.to_le_bytes(),
             // pa
-            0xABCDEFABu32.to_le_bytes(),
+            0xffffffffu32.to_le_bytes(),
             // len
             0x11223344u32.to_le_bytes(),
             // flags
-            0x87654321u32.to_le_bytes(),
+            0x00000000u32.to_le_bytes(),
             // reserved
             0x00000000u32.to_le_bytes(),
             // name

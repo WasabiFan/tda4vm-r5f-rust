@@ -1,8 +1,8 @@
 //! Types to represent device-side pointers (32-bit) in resource tables.
-//! 
+//!
 //! This address type must store a pointer (not plain integer), because resource table entries are often initialized via
 //! an an unresolved linker symbol. It has a 4-byte memory representation.
-//! 
+//!
 //! To enable testing of resource table generation, we need to retain the 4-byte representation on 64-bit systems. We've
 //! shimmed the type on 64-bit targets to store a 32-bit integer, which is sufficient for faithful representation tests.
 
